@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('attendance_date');
             $table->string('status', 20);   // hadir | terlambat | izin | tidak_hadir
             $table->foreignId('recorded_by')->constrained('users')->restrictOnDelete();
-            $table->timestamp('recorded_at');
+            $table->dateTime('recorded_at');
             $table->foreignId('verified_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamp('verified_at')->nullable();
             $table->timestamps();

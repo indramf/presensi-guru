@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('related_user_id')->nullable()->constrained('users')->restrictOnDelete();
             $table->foreignId('related_audit_log_id')->nullable()->constrained('audit_logs')->restrictOnDelete();
             $table->text('description');
-            $table->timestamp('detected_at');
+            $table->dateTime('detected_at');
             $table->string('status', 10)->default('baru');
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamp('reviewed_at')->nullable();

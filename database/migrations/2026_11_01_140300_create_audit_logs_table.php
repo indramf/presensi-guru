@@ -21,7 +21,7 @@ return new class extends Migration
             $table->json('before_data')->nullable();
             $table->json('after_data')->nullable();
             $table->text('reason')->nullable();
-            $table->timestamp('occurred_at', 6);
+            $table->dateTime('occurred_at', 6);
             $table->char('previous_hash', 64)->nullable();
             $table->char('entry_hash', 64)->unique();
 

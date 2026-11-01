@@ -12,6 +12,8 @@ class AuditLog extends Model
 {
     public $timestamps = false;   // tabelnya tanpa created_at/updated_at
 
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
     protected $fillable = [
         'actor_user_id',
         'event_type',
