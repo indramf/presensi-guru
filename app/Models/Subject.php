@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
-// use Database\Factories\SubjectFactory;
+use App\Observers\AuditObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
+#[ObservedBy([AuditObserver::class])]
 
 class Subject extends Model
 {
