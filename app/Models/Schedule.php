@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
-// use Database\Factories\ScheduleFactory;
+use App\Observers\AuditObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
+#[ObservedBy([AuditObserver::class])]
 
 class Schedule extends Model
 {
