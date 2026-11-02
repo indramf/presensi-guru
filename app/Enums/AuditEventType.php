@@ -18,4 +18,5 @@ enum AuditEventType: string
     case AlertReviewed = 'alert.reviewed';
     case IntegrityChecked = 'audit.integrity_checked';
     case AttendanceVerified = 'attendance.verified';
+    case ClassReportFollowUpChanged = 'class_report.follow_up_changed';
 }
