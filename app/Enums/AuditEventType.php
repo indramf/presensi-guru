@@ -17,4 +17,5 @@ enum AuditEventType: string
     case AccessDenied = 'security.access_denied';
     case AlertReviewed = 'alert.reviewed';
     case IntegrityChecked = 'audit.integrity_checked';
+    case AttendanceVerified = 'attendance.verified';
 }
