@@ -23,8 +23,11 @@ class SubjectResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'subject_name';
+
     protected static ?string $modelLabel = 'Mata Pelajaran';
+
     protected static ?string $pluralModelLabel = 'Mata Pelajaran';
+
     protected static ?string $navigationLabel = 'Mata Pelajaran';
 
     public static function form(Schema $schema): Schema

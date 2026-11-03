@@ -4,9 +4,9 @@ namespace App\Filament\Resources\SchoolClasses\Schemas;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Validation\Rules\Unique;
-use Filament\Forms\Get;
 
 class SchoolClassForm
 {

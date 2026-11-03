@@ -25,7 +25,9 @@ class TeacherResource extends Resource
     protected static ?string $recordTitleAttribute = 'full_name';
 
     protected static ?string $modelLabel = 'Guru';
+
     protected static ?string $pluralModelLabel = 'Guru';
+
     protected static ?string $navigationLabel = 'Guru';
 
     public static function form(Schema $schema): Schema
