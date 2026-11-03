@@ -34,14 +34,14 @@ class UserForm
                     ->label('Kata Sandi')
                     ->password()
                     ->revealable()
-                    ->dehydrated(fn($state): bool => filled($state))
-                    ->required(fn(string $operation): bool => $operation === 'create')
+                    ->dehydrated(fn ($state): bool => filled($state))
+                    ->required(fn (string $operation): bool => $operation === 'create')
                     ->maxLength(255),
                 Select::make('role')
                     ->label('Peran')
                     ->options(
                         collect(UserRole::cases())
-                            ->mapWithKeys(fn(UserRole $role) => [
+                            ->mapWithKeys(fn (UserRole $role) => [
                                 $role->value => $role->label(),
                             ])
                             ->all()
@@ -51,7 +51,7 @@ class UserForm
                 Toggle::make('is_active')
                     ->label('Aktif')
                     ->default(true)
-                    ->disabled(fn(?Model $record): bool => $record?->is(Auth::user()) ?? false)
+                    ->disabled(fn (?Model $record): bool => $record?->is(Auth::user()) ?? false)
                     ->helperText('Akun nonaktif tidak dapat masuk. Akun Anda sendiri tidak dapat dinonaktifkan.'),
             ]);
     }
