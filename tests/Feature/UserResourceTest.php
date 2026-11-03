@@ -107,6 +107,6 @@ class UserResourceTest extends TestCase
             }
         }
 
-        $this->assertSame([], $matches, 'Aksi hapus ditemukan di: ' . implode(', ', $matches));
+        $this->assertSame([], $matches, 'Aksi hapus ditemukan di: '.implode(', ', $matches));
     }
 }
