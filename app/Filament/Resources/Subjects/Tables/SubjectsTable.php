@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Subjects\Tables;
 
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class SubjectsTable
@@ -20,7 +21,8 @@ class SubjectsTable
                     ->boolean(),
             ])
             ->filters([
-                //
+                TernaryFilter::make('is_active')
+                    ->label('Status Aktif'),
             ]);
     }
 }
