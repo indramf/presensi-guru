@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Teachers\Tables;
 
-use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class TeachersTable
@@ -26,10 +26,8 @@ class TeachersTable
                     ->boolean(),
             ])
             ->filters([
-                //
-            ])
-            ->recordActions([
-                EditAction::make(),
+                TernaryFilter::make('is_active')
+                    ->label('Status Aktif'),
             ]);
     }
 }

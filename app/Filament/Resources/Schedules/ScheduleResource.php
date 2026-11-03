@@ -18,10 +18,14 @@ class ScheduleResource extends Resource
 {
     protected static ?string $model = Schedule::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
+
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $modelLabel = 'Jadwal';
+
     protected static ?string $pluralModelLabel = 'Jadwal';
+
     protected static ?string $navigationLabel = 'Jadwal';
 
     public static function form(Schema $schema): Schema
