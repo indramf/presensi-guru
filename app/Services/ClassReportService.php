@@ -40,7 +40,7 @@ class ClassReportService
             ]);
         }
 
-        $start = Carbon::parse($at->toDateString() . ' ' . $schedule->start_time, $at->getTimezone());
+        $start = Carbon::parse($at->toDateString().' '.$schedule->start_time, $at->getTimezone());
 
         if ($at->lt($start)) {
             throw ValidationException::withMessages(['schedule' => 'Sesi ini belum dimulai.']);
