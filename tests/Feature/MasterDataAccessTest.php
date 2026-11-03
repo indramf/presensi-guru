@@ -20,30 +20,43 @@ class MasterDataAccessTest extends TestCase
         $this->seed(DatabaseSeeder::class);
     }
 
-    // public function test_fr03_guru_is_forbidden_from_admin_resources(): void
-    // {
-    //     $guru = User::where('email', 'guru1@presensi.test')->firstOrFail();
+    public function test_fr03_guru_is_forbidden_from_admin_resources(): void
+    {
+        $guru = User::where('email', 'guru1@presensi.test')->firstOrFail();
 
-    //     foreach (['/admin/teachers', '/admin/users', '/admin/schedules'] as $url) {
-    //         $this->actingAs($guru)->get($url)->assertForbidden();
-    //     }
-    // }
+        foreach (['/admin/teachers', '/admin/users', '/admin/schedules'] as $url) {
+            $this->actingAs($guru)->get($url)->assertForbidden();
+        }
+    }
 
-    // public function test_fr03_piket_is_forbidden_from_master_data(): void
-    // {
-    //     $piket = User::where('email', 'piket@presensi.test')->firstOrFail();
+    public function test_fr03_piket_is_forbidden_from_master_data(): void
+    {
+        $piket = User::where('email', 'piket@presensi.test')->firstOrFail();
 
-    //     foreach (['/admin/teachers', '/admin/users', '/admin/schedules'] as $url) {
-    //         $this->actingAs($piket)->get($url)->assertForbidden();
-    //     }
-    // }
+        foreach (['/admin/teachers', '/admin/users', '/admin/schedules'] as $url) {
+            $this->actingAs($piket)->get($url)->assertForbidden();
+        }
+    }
 
-    // public function test_admin_can_open_master_data_pages(): void
-    // {
-    //     $admin = User::where('email', 'admin@presensi.test')->firstOrFail();
+    public function test_admin_can_open_master_data_pages(): void
+    {
+        $admin = User::where('email', 'admin@presensi.test')->firstOrFail();
 
-    //     foreach (['/admin/teachers', '/admin/users', '/admin/schedules'] as $url) {
-    //         $this->actingAs($admin)->get($url)->assertOk();
-    //     }
-    // }
+        foreach (['/admin/teachers', '/admin/users', '/admin/schedules'] as $url) {
+            $status = $this->actingAs($admin)->get($url)->getStatusCode();
+
+            $this->assertSame(200, $status, "Admin gagal membuka {$url} (status {$status})");
+        }
+    }
+
+    public function test_active_account_can_open_panel_and_inactive_one_cannot(): void
+    {
+        $guru = User::where('email', 'guru1@presensi.test')->firstOrFail();
+
+        $this->actingAs($guru)->get('/admin')->assertSuccessful();
+
+        $guru->update(['is_active' => false]);
+
+        $this->actingAs($guru->fresh())->get('/admin')->assertForbidden();
+    }
 }
