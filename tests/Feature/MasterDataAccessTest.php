@@ -43,7 +43,20 @@ class MasterDataAccessTest extends TestCase
         $admin = User::where('email', 'admin@presensi.test')->firstOrFail();
 
         foreach (['/admin/teachers', '/admin/users', '/admin/schedules'] as $url) {
-            $this->actingAs($admin)->get($url)->assertOk();
+            $status = $this->actingAs($admin)->get($url)->getStatusCode();
+
+            $this->assertSame(200, $status, "Admin gagal membuka {$url} (status {$status})");
         }
+    }
+
+    public function test_active_account_can_open_panel_and_inactive_one_cannot(): void
+    {
+        $guru = User::where('email', 'guru1@presensi.test')->firstOrFail();
+
+        $this->actingAs($guru)->get('/admin')->assertSuccessful();
+
+        $guru->update(['is_active' => false]);
+
+        $this->actingAs($guru->fresh())->get('/admin')->assertForbidden();
     }
 }

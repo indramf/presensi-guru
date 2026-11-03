@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Models\Attendance;
 use App\Models\AuditLog;
 use App\Models\Schedule;
+use App\Models\SchoolClass;
 use App\Models\SecurityAlert;
+use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
@@ -81,5 +83,14 @@ class AuthorizationTest extends TestCase
         $user->update(['is_active' => false]);
 
         $this->actingAs($user)->get('/admin')->assertForbidden();
+    }
+
+    public function test_admin_has_view_any_on_every_master_data_model(): void
+    {
+        $admin = User::where('email', 'admin@presensi.test')->firstOrFail();
+
+        foreach ([User::class, Teacher::class, SchoolClass::class, Subject::class, Schedule::class] as $model) {
+            $this->assertTrue($admin->can('viewAny', $model), "Admin tidak bisa viewAny pada {$model}");
+        }
     }
 }
