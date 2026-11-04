@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\AttendanceResource\Pages;
+namespace App\Filament\Resources\Attendances\Pages;
 
-use App\Filament\Resources\AttendanceResource;
+use App\Filament\Resources\Attendances\AttendanceResource;
 use Filament\Resources\Pages\ListRecords;
 
 class ListAttendances extends ListRecords
@@ -11,8 +11,6 @@ class ListAttendances extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            // Tombol "New Attendance" dihapus karena resource ini hanya baca
-        ];
+        return [];
     }
 }

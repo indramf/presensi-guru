@@ -3,11 +3,14 @@
 namespace App\Filament\Pages;
 
 use App\Exceptions\AttendanceRejectedException;
+use App\Models\Attendance;
 use App\Models\Schedule;
 use App\Services\AttendanceService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class MyAttendance extends Page
 {
@@ -21,12 +24,12 @@ class MyAttendance extends Page
 
     public static function canAccess(): bool
     {
-        return true;
+        return Gate::allows('create', Attendance::class);
     }
 
     public function getSchedulesProperty(): Collection
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if (! $user || ! $user->teacher) {
             return collect();
@@ -48,13 +51,12 @@ class MyAttendance extends Page
         $attendanceService = app(AttendanceService::class);
 
         try {
-            $attendanceService->record(auth()->user(), $schedule);
+            $attendanceService->record(Auth::user(), $schedule);
 
             Notification::make()
                 ->success()
                 ->title('Presensi tersimpan')
                 ->send();
-
         } catch (AttendanceRejectedException $e) {
             Notification::make()
                 ->warning()

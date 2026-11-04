@@ -32,7 +32,7 @@
                                         {{ $schedule->subject->name ?? 'Mata Pelajaran' }}
                                     </h3>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                                        Kelas: {{ $schedule->schoolClass->name ?? '-' }}
+                                        Kelas: {{ $schedule->schoolClass->class_name ?? '-' }}
                                     </p>
                                 </div>
                                 <div class="text-right">
