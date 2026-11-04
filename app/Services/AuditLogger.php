@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\AuditEventType;
 use App\Enums\AuditResult;
+use App\Events\AuditEntryRecorded;
 use App\Models\AuditLog;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +28,15 @@ class AuditLogger
         $count = 0;
 
         $entry = DB::transaction(function () use (
-            $event, $result, $actorId, $targetType, $targetId, $before, $after, $reason, &$count,
+            $event,
+            $result,
+            $actorId,
+            $targetType,
+            $targetId,
+            $before,
+            $after,
+            $reason,
+            &$count,
         ) {
             // Kunci entri terakhir agar dua penulisan tidak membuat rantai bercabang.
             $last = AuditLog::query()->orderByDesc('id')->lockForUpdate()->first();
@@ -52,7 +61,12 @@ class AuditLogger
         });
 
         // Tulis checkpoint hanya setelah transaksi (termasuk transaksi luar) benar-benar commit.
-        DB::afterCommit(fn () => $this->checkpoint->write($entry->id, $entry->entry_hash, $count));
+        DB::afterCommit(function () use ($entry, $count) {
+            $this->checkpoint->write($entry->id, $entry->entry_hash, $count);
+
+            // Deteksi anomali berjalan SETELAH commit, di luar transaksi bisnis.
+            event(new AuditEntryRecorded($entry));
+        });
 
         return $entry;
     }
