@@ -20,7 +20,7 @@ class AuditLogPolicy
      */
     public function view(User $user, AuditLog $auditLog): bool
     {
-        return false;
+        return $user->hasPermissionTo('audit_logs.view');
     }
 
     /**
