@@ -3,7 +3,6 @@
 use App\Services\Anomaly\Rules;
 use App\Services\Anomaly\Rules\AdminActivityRule;
 
-
 return [
     // ASUMSI (D4). Nilai awal untuk prototipe; evaluasi dan sesuaikan dengan sekolah.
     'an01' => ['threshold' => 5, 'window_minutes' => 5, 'dedupe_minutes' => 30],
