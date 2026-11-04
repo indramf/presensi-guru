@@ -65,6 +65,6 @@ class AuditLogPolicy
 
     public function verify(User $user): bool
     {
-        return $user->can('audit_logs.verify');
+        return $user->hasPermissionTo('audit_logs.verify');
     }
 }
