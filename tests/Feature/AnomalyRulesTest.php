@@ -10,6 +10,7 @@ use App\Enums\AuditResult;
 use App\Models\AuditLog;
 use App\Models\Schedule;
 use App\Models\SecurityAlert;
+use App\Models\User;
 use App\Services\AuditLogger;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -26,8 +27,8 @@ class AnomalyRulesTest extends TestCase
         parent::setUp();
 
         $this->checkpointPath = sys_get_temp_dir()
-            . DIRECTORY_SEPARATOR
-            . 'audit-cp-' . uniqid() . '.json';
+            .DIRECTORY_SEPARATOR
+            .'audit-cp-'.uniqid().'.json';
 
         config(['audit.checkpoint_path' => $this->checkpointPath]);
     }
@@ -91,13 +92,13 @@ class AnomalyRulesTest extends TestCase
 
     public function test_an01_failures_outside_window_do_not_count(): void
     {
-        \Carbon\Carbon::setTestNow(now()->subMinutes(10));
+        Carbon::setTestNow(now()->subMinutes(10));
 
         for ($i = 1; $i <= 3; $i++) {
             $this->failedLogin('a@presensi.test');
         }
 
-        \Carbon\Carbon::setTestNow(now()->addMinutes(10));
+        Carbon::setTestNow(now()->addMinutes(10));
 
         for ($i = 1; $i <= 2; $i++) {
             $this->failedLogin('a@presensi.test');
@@ -166,7 +167,7 @@ class AnomalyRulesTest extends TestCase
 
     public function test_an04_single_access_denied_creates_medium_alert(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
 
         $entry = $this->log(AuditEventType::AccessDenied, [
             'result' => AuditResult::Denied,
@@ -185,7 +186,7 @@ class AnomalyRulesTest extends TestCase
 
     public function test_an04_third_access_denied_raises_high_alert(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
 
         for ($i = 1; $i <= 3; $i++) {
             $this->log(AuditEventType::AccessDenied, [
@@ -346,7 +347,7 @@ class AnomalyRulesTest extends TestCase
 
     public function test_an07_twenty_admin_activities_create_medium_alert(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
 
         for ($i = 1; $i <= 20; $i++) {
             $entry = $this->log(AuditEventType::DataCreated, [
@@ -368,7 +369,7 @@ class AnomalyRulesTest extends TestCase
     {
         Carbon::setTestNow('2026-11-02 19:00:00');
 
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
 
         $entry = $this->log(AuditEventType::DataCreated, [
             'result' => AuditResult::Success,
@@ -388,7 +389,7 @@ class AnomalyRulesTest extends TestCase
     {
         Carbon::setTestNow('2026-11-02 10:00:00');
 
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
 
         $this->log(AuditEventType::DataCreated, [
             'result' => AuditResult::Success,

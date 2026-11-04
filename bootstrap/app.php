@@ -34,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         ],
                         reason: 'http_403',
                     );
-                } catch (\Throwable $t) {
+                } catch (Throwable $t) {
                     report($t);
                 }
             }
