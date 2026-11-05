@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Attendances\Schemas;
 
 use App\Enums\AttendanceStatus;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -18,11 +19,11 @@ class AttendanceInfolist
                 TextEntry::make('schedule.start_time')
                     ->label('Jam')
                     ->time('H:i'),
-                TextEntry::make('teacher.full_name')
+                TextEntry::make('teacher.user.name')
                     ->label('Guru'),
                 TextEntry::make('schedule.schoolClass.class_name')
                     ->label('Kelas'),
-                TextEntry::make('schedule.subject.subject_name')
+                TextEntry::make('schedule.subject.name')
                     ->label('Mata Pelajaran'),
                 TextEntry::make('status')
                     ->label('Status')
@@ -51,6 +52,9 @@ class AttendanceInfolist
                 TextEntry::make('recorded_at')
                     ->label('Waktu Dicatat')
                     ->dateTime('d M Y H:i', 'Asia/Jakarta'),
+                IconEntry::make('verified_at')
+                    ->label('Verifikasi')
+                    ->boolean(),
                 TextEntry::make('verifier.name')
                     ->label('Diverifikasi Oleh')
                     ->placeholder('Belum terverifikasi'),
@@ -58,6 +62,9 @@ class AttendanceInfolist
                     ->label('Waktu Verifikasi')
                     ->dateTime('d M Y H:i', 'Asia/Jakarta')
                     ->placeholder('Belum terverifikasi'),
+                TextEntry::make('updated_at')
+                    ->label('Terakhir Diperbarui')
+                    ->dateTime('d M Y H:i'),
             ]);
     }
 }

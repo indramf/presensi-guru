@@ -11,8 +11,6 @@ class ListAttendances extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            // Tombol "New Attendance" dihapus karena resource ini hanya baca
-        ];
+        return [];
     }
 }
