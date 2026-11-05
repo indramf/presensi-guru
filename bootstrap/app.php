@@ -2,6 +2,7 @@
 
 use App\Enums\AuditEventType;
 use App\Enums\AuditResult;
+use App\Http\Middleware\SecurityHeaders;
 use App\Services\AuditLogger;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->append(SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (HttpExceptionInterface $e, Request $request) {
