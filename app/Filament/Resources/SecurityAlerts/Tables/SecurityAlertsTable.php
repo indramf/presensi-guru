@@ -30,7 +30,7 @@ class SecurityAlertsTable
             ->columns([
                 TextColumn::make('detected_at')
                     ->label('Waktu Terdeteksi')
-                    ->dateTime('d M Y H:i:s')
+                    ->dateTime('d M Y H:i', 'Asia/Jakarta')
                     ->sortable(),
                 TextColumn::make('rule_code')
                     ->label('Kode Aturan')
@@ -44,11 +44,21 @@ class SecurityAlertsTable
                     ->label('Tingkat')
                     ->badge()
                     ->formatStateUsing(fn (AlertSeverity $state): string => $state->label())
+                    ->icon(fn (AlertSeverity $state): string => match ($state) {
+                        AlertSeverity::Rendah => 'heroicon-o-information-circle',
+                        AlertSeverity::Sedang => 'heroicon-o-exclamation-triangle',
+                        AlertSeverity::Tinggi => 'heroicon-o-exclamation-circle',
+                    })
                     ->color(fn (AlertSeverity $state): string => $state->color()),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->formatStateUsing(fn (AlertStatus $state): string => $state->label())
+                    ->icon(fn (AlertStatus $state): string => match ($state) {
+                        AlertStatus::Baru => 'heroicon-o-bell-alert',
+                        AlertStatus::Ditinjau => 'heroicon-o-eye',
+                        AlertStatus::Ditutup => 'heroicon-o-check-circle',
+                    })
                     ->color(fn (AlertStatus $state): string => match ($state) {
                         AlertStatus::Baru => 'gray',
                         AlertStatus::Ditinjau => 'warning',
@@ -91,6 +101,9 @@ class SecurityAlertsTable
                 Action::make('review')
                     ->label('Tinjau')
                     ->color('primary')
+                    ->requiresConfirmation()
+                    ->modalHeading('Tinjau peringatan anomali')
+                    ->modalDescription('Pastikan status tujuan dan catatan sudah sesuai sebelum menyimpan.')
                     ->schema(fn (SecurityAlert $record): array => [
                         Select::make('status')
                             ->label('Status Tujuan')
@@ -146,7 +159,10 @@ class SecurityAlertsTable
                         }
                     }),
             ])
-            ->defaultSort('detected_at', 'desc');
+            ->defaultSort('detected_at', 'desc')
+            ->emptyStateHeading('Belum ada peringatan anomali')
+            ->emptyStateDescription('Peringatan yang terdeteksi akan tampil di sini.')
+            ->emptyStateIcon('heroicon-o-shield-check');
     }
 
     /**

@@ -21,7 +21,7 @@ class MyAttendance extends Page
 
     public static function canAccess(): bool
     {
-        return true;
+        return auth()->user()?->can('attendance.record') ?? false;
     }
 
     public function getSchedulesProperty(): Collection
@@ -32,12 +32,14 @@ class MyAttendance extends Page
             return collect();
         }
 
+        $today = now('Asia/Jakarta');
+
         return Schedule::active()
             ->where('teacher_id', $user->teacher->id)
-            ->where('day_of_week', now()->dayOfWeekIso)
+            ->where('day_of_week', $today->dayOfWeekIso)
             ->orderBy('start_time')
-            ->with(['schoolClass', 'subject', 'attendances' => function ($query) {
-                $query->whereDate('attendance_date', now()->toDateString());
+            ->with(['schoolClass', 'subject', 'attendances' => function ($query) use ($today) {
+                $query->whereDate('attendance_date', $today->toDateString());
             }])
             ->get();
     }
@@ -48,7 +50,7 @@ class MyAttendance extends Page
         $attendanceService = app(AttendanceService::class);
 
         try {
-            $attendanceService->record(auth()->user(), $schedule);
+            $attendanceService->record(auth()->user(), $schedule, now('Asia/Jakarta'));
 
             Notification::make()
                 ->success()

@@ -18,7 +18,7 @@ class AuditLogInfolist
                     ->label('ID Entri'),
                 TextEntry::make('occurred_at')
                     ->label('Waktu')
-                    ->dateTime('d M Y H:i:s'),
+                    ->dateTime('d M Y H:i', 'Asia/Jakarta'),
                 TextEntry::make('actor.name')
                     ->label('Pelaku')
                     ->placeholder('Sistem'),
@@ -38,6 +38,11 @@ class AuditLogInfolist
                         AuditResult::Success => 'Berhasil',
                         AuditResult::Denied => 'Ditolak',
                         AuditResult::Failed => 'Gagal',
+                    })
+                    ->icon(fn (AuditResult $state): string => match ($state) {
+                        AuditResult::Success => 'heroicon-o-check-circle',
+                        AuditResult::Denied => 'heroicon-o-no-symbol',
+                        AuditResult::Failed => 'heroicon-o-x-circle',
                     })
                     ->color(fn (AuditResult $state): string => match ($state) {
                         AuditResult::Success => 'success',

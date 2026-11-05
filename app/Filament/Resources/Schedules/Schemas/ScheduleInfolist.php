@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Schedules\Schemas;
 
-use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -12,25 +11,42 @@ class ScheduleInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('teacher.id')
-                    ->label('Teacher'),
-                TextEntry::make('class_id')
-                    ->numeric(),
-                TextEntry::make('subject.id')
-                    ->label('Subject'),
+                TextEntry::make('teacher.full_name')
+                    ->label('Guru'),
+                TextEntry::make('schoolClass.class_name')
+                    ->label('Kelas'),
+                TextEntry::make('subject.subject_name')
+                    ->label('Mata Pelajaran'),
                 TextEntry::make('day_of_week')
-                    ->numeric(),
+                    ->label('Hari')
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'Monday' => 'Senin',
+                        'Tuesday' => 'Selasa',
+                        'Wednesday' => 'Rabu',
+                        'Thursday' => 'Kamis',
+                        'Friday' => 'Jumat',
+                        'Saturday' => 'Sabtu',
+                        default => $state,
+                    }),
                 TextEntry::make('start_time')
-                    ->time(),
+                    ->label('Jam Mulai')
+                    ->time('H:i'),
                 TextEntry::make('end_time')
-                    ->time(),
-                IconEntry::make('is_active')
-                    ->boolean(),
+                    ->label('Jam Selesai')
+                    ->time('H:i'),
+                TextEntry::make('is_active')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Aktif' : 'Nonaktif')
+                    ->icon(fn (bool $state): string => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                    ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                 TextEntry::make('created_at')
-                    ->dateTime()
+                    ->label('Dibuat Pada')
+                    ->dateTime('d M Y H:i', 'Asia/Jakarta')
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
-                    ->dateTime()
+                    ->label('Diperbarui Pada')
+                    ->dateTime('d M Y H:i', 'Asia/Jakarta')
                     ->placeholder('-'),
             ]);
     }

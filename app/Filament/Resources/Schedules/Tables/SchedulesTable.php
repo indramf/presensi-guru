@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Schedules\Tables;
 
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -42,9 +41,12 @@ class SchedulesTable
                 TextColumn::make('end_time')
                     ->label('Jam Selesai')
                     ->time('H:i'),
-                IconColumn::make('is_active')
+                TextColumn::make('is_active')
                     ->label('Status')
-                    ->boolean(),
+                    ->badge()
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Aktif' : 'Nonaktif')
+                    ->icon(fn (bool $state): string => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                    ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
             ])
             ->filters([
                 SelectFilter::make('day_of_week')
@@ -58,6 +60,9 @@ class SchedulesTable
                     ->relationship('schoolClass', 'class_name'),
                 TernaryFilter::make('is_active')
                     ->label('Status Aktif'),
-            ]);
+            ])
+            ->emptyStateHeading('Belum ada jadwal')
+            ->emptyStateDescription('Jadwal akan tampil di sini setelah ditambahkan.')
+            ->emptyStateIcon('heroicon-o-calendar-days');
     }
 }

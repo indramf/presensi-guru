@@ -21,7 +21,7 @@ class AuditLogsTable
             ->columns([
                 TextColumn::make('occurred_at')
                     ->label('Waktu')
-                    ->dateTime('d M Y H:i:s')
+                    ->dateTime('d M Y H:i', 'Asia/Jakarta')
                     ->sortable(),
                 TextColumn::make('actor.name')
                     ->label('Pelaku')
@@ -43,6 +43,11 @@ class AuditLogsTable
                         AuditResult::Success => 'Berhasil',
                         AuditResult::Denied => 'Ditolak',
                         AuditResult::Failed => 'Gagal',
+                    })
+                    ->icon(fn (AuditResult $state): string => match ($state) {
+                        AuditResult::Success => 'heroicon-o-check-circle',
+                        AuditResult::Denied => 'heroicon-o-no-symbol',
+                        AuditResult::Failed => 'heroicon-o-x-circle',
                     })
                     ->color(fn (AuditResult $state): string => match ($state) {
                         AuditResult::Success => 'success',
@@ -88,6 +93,9 @@ class AuditLogsTable
             ->recordActions([
                 ViewAction::make(),
             ])
-            ->defaultSort('occurred_at', 'desc');
+            ->defaultSort('occurred_at', 'desc')
+            ->emptyStateHeading('Belum ada riwayat audit log')
+            ->emptyStateDescription('Aktivitas sistem yang tercatat akan tampil di sini.')
+            ->emptyStateIcon('heroicon-o-clipboard-document-list');
     }
 }

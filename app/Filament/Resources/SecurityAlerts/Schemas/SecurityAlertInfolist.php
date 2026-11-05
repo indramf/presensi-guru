@@ -29,11 +29,21 @@ class SecurityAlertInfolist
                     ->label('Tingkat')
                     ->badge()
                     ->formatStateUsing(fn (AlertSeverity $state): string => $state->label())
+                    ->icon(fn (AlertSeverity $state): string => match ($state) {
+                        AlertSeverity::Rendah => 'heroicon-o-information-circle',
+                        AlertSeverity::Sedang => 'heroicon-o-exclamation-triangle',
+                        AlertSeverity::Tinggi => 'heroicon-o-exclamation-circle',
+                    })
                     ->color(fn (AlertSeverity $state): string => $state->color()),
                 TextEntry::make('status')
                     ->label('Status')
                     ->badge()
                     ->formatStateUsing(fn (AlertStatus $state): string => $state->label())
+                    ->icon(fn (AlertStatus $state): string => match ($state) {
+                        AlertStatus::Baru => 'heroicon-o-bell-alert',
+                        AlertStatus::Ditinjau => 'heroicon-o-eye',
+                        AlertStatus::Ditutup => 'heroicon-o-check-circle',
+                    })
                     ->color(fn (AlertStatus $state): string => match ($state) {
                         AlertStatus::Baru => 'gray',
                         AlertStatus::Ditinjau => 'warning',
@@ -41,7 +51,7 @@ class SecurityAlertInfolist
                     }),
                 TextEntry::make('detected_at')
                     ->label('Waktu Terdeteksi')
-                    ->dateTime('d M Y H:i:s'),
+                    ->dateTime('d M Y H:i', 'Asia/Jakarta'),
                 TextEntry::make('relatedUser.name')
                     ->label('Pengguna Terkait')
                     ->placeholder('Tidak diketahui'),
@@ -56,7 +66,7 @@ class SecurityAlertInfolist
                     ->placeholder('Belum ditinjau'),
                 TextEntry::make('reviewed_at')
                     ->label('Waktu Ditinjau')
-                    ->dateTime('d M Y H:i:s')
+                    ->dateTime('d M Y H:i', 'Asia/Jakarta')
                     ->placeholder('Belum ditinjau'),
                 TextEntry::make('review_notice')
                     ->label('Catatan')
