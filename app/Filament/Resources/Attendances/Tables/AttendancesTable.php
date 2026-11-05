@@ -16,8 +16,8 @@ use Filament\Tables\Table;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
 class AttendancesTable
 {
@@ -47,14 +47,14 @@ class AttendancesTable
                     ->label('Dicatat Oleh'),
                 Tables\Columns\IconColumn::make('verified_at')
                     ->label('Verifikasi')
-                    ->icon(fn($state) => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
-                    ->color(fn($state) => $state ? 'success' : 'gray'),
+                    ->icon(fn ($state) => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                    ->color(fn ($state) => $state ? 'success' : 'gray'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('hari_ini')
                     ->label('Hari Ini')
-                    ->query(fn(Builder $query) => $query->whereDate('attendance_date', now()))
+                    ->query(fn (Builder $query) => $query->whereDate('attendance_date', now()))
                     ->default(),
                 SelectFilter::make('teacher_id')
                     ->relationship('teacher.user', 'name')
@@ -73,7 +73,7 @@ class AttendancesTable
                     ->icon('heroicon-o-check')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn(Attendance $record) => Gate::allows('update', $record) && is_null($record->verified_at))
+                    ->visible(fn (Attendance $record) => Gate::allows('update', $record) && is_null($record->verified_at))
                     ->action(function (Attendance $record) {
                         try {
                             app(AttendanceService::class)->verify(Auth::user(), $record);
@@ -88,7 +88,7 @@ class AttendancesTable
                     ->icon('heroicon-o-pencil-square')
                     ->color('warning')
                     ->requiresConfirmation()
-                    ->visible(fn(Attendance $record) => Gate::allows('update', $record))
+                    ->visible(fn (Attendance $record) => Gate::allows('update', $record))
                     ->form(AttendanceForm::statusChange())
                     ->action(function (array $data, Attendance $record) {
                         try {
