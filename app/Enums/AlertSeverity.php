@@ -20,7 +20,7 @@ enum AlertSeverity: string
     public function color(): string
     {
         return match ($this) {
-            self::Rendah => 'info',
+            self::Rendah => 'gray',
             self::Sedang => 'warning',
             self::Tinggi => 'danger',
         };

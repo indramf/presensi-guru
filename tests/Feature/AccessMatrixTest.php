@@ -58,7 +58,11 @@ class AccessMatrixTest extends TestCase
 
             foreach ($byStatus as $expected => $urls) {
                 foreach ($urls as $url) {
-                    $actual = $this->actingAs($user)->get($url)->getStatusCode();
+                    $this->flushSession();
+                    $this->actingAs($user);
+
+                    $response = $this->get($url);
+                    $actual = $response->getStatusCode();
 
                     if ($actual !== $expected) {
                         $failures[] = "{$email} {$url}: diharapkan {$expected}, aktual {$actual}";
@@ -67,7 +71,7 @@ class AccessMatrixTest extends TestCase
             }
         }
 
-        $this->assertSame([], $failures, "Selisih akses:\n".implode("\n", $failures));
+        $this->assertSame([], $failures, "Selisih akses:\n" . implode("\n", $failures));
     }
 
     public function test_t07_guests_are_redirected_to_login_on_every_page(): void

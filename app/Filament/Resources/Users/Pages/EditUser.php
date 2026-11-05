@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Enums\AuditEventType;
+use App\Filament\Resources\Concerns\ConfirmsDeactivation;
 use App\Filament\Resources\Users\UserResource;
 use App\Services\AuditLogger;
 use Filament\Notifications\Notification;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 
 class EditUser extends EditRecord
 {
+    use ConfirmsDeactivation;
+
     protected static string $resource = UserResource::class;
 
     // Sengaja kosong: tanpa aksi hapus (data dinonaktifkan, bukan dihapus).

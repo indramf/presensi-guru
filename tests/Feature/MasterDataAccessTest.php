@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Pages\MyAttendance;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -53,7 +54,7 @@ class MasterDataAccessTest extends TestCase
     {
         $guru = User::where('email', 'guru1@presensi.test')->firstOrFail();
 
-        $this->actingAs($guru)->get('/admin')->assertSuccessful();
+        $this->actingAs($guru)->get('/admin')->assertRedirect(MyAttendance::getUrl());
 
         $guru->update(['is_active' => false]);
 
