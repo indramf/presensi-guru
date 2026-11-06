@@ -297,4 +297,70 @@ class AttendanceServiceTest extends TestCase
         $log = AuditLog::where('event_type', AuditEventType::AttendanceStatusChanged->value)->firstOrFail();
         $this->assertTrue($log->before_data['verified']);
     }
+
+    public function test_fr06_inactive_teacher_cannot_record_attendance(): void
+    {
+        [$user, $schedule] = $this->guruWithSchedule();
+
+        $schedule->teacher()->update(['is_active' => false]);
+
+        try {
+            $this->service()->record($user, $schedule, $this->at('07:05:00'));
+            $this->fail('Guru tidak aktif seharusnya ditolak.');
+        } catch (AttendanceRejectedException $e) {
+            $this->assertSame(AttendanceRejection::InactiveSchedule, $e->reason);
+        }
+
+        $this->assertSame(0, Attendance::count());
+
+        $this->assertTrue(
+            AuditLog::where('event_type', AuditEventType::AttendanceRejected->value)
+                ->where('reason', 'inactive_schedule')
+                ->exists()
+        );
+    }
+
+    public function test_fr07_duplicate_submission_one_second_apart_is_rejected(): void
+    {
+        [$user, $schedule] = $this->guruWithSchedule();
+
+        $this->service()->record($user, $schedule, $this->at('07:05:00'));
+
+        try {
+            $this->service()->record($user, $schedule, $this->at('07:05:01'));
+            $this->fail('Pengiriman kedua seharusnya ditolak.');
+        } catch (AttendanceRejectedException $e) {
+            $this->assertSame(AttendanceRejection::Duplicate, $e->reason);
+        }
+
+        $this->assertSame(1, Attendance::count());
+    }
+
+    public function test_fr11_changing_to_the_same_status_is_rejected(): void
+    {
+        $piket = $this->userWithRole(UserRole::GuruPiket);
+
+        $attendance = Attendance::factory()->create([
+            'status' => AttendanceStatus::Terlambat,
+        ]);
+
+        try {
+            $this->service()->changeStatus(
+                $piket,
+                $attendance,
+                AttendanceStatus::Terlambat,
+                'Status tetap terlambat',
+            );
+
+            $this->fail('Perubahan ke status yang sama seharusnya ditolak.');
+        } catch (ValidationException $e) {
+            $this->assertArrayHasKey('status', $e->errors());
+        }
+
+        $this->assertSame(AttendanceStatus::Terlambat, $attendance->fresh()->status);
+
+        $this->assertFalse(
+            AuditLog::where('event_type', AuditEventType::AttendanceStatusChanged->value)->exists()
+        );
+    }
 }
