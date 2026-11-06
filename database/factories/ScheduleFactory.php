@@ -24,10 +24,22 @@ class ScheduleFactory extends Factory
             'teacher_id' => Teacher::factory(),
             'class_id' => SchoolClass::factory(),
             'subject_id' => Subject::factory(),
+            'type' => 'lesson',
+            'activity_name' => null,
             'day_of_week' => 1,
             'start_time' => '07:00:00',
             'end_time' => '07:45:00',
             'is_active' => true,
         ];
+    }
+
+    public function activity(string $name = 'Kegiatan Sekolah'): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'teacher_id' => null,
+            'subject_id' => null,
+            'type' => 'activity',
+            'activity_name' => $name,
+        ]);
     }
 }

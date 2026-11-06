@@ -9,7 +9,7 @@ class ScheduleConflictChecker
 {
     /** @return list<string> pesan masalah; kosong berarti jadwal valid */
     public function check(
-        int $teacherId,
+        ?int $teacherId,
         int $classId,
         int $dayOfWeek,
         string $startTime,
@@ -32,7 +32,7 @@ class ScheduleConflictChecker
 
         $messages = [];
 
-        if ((clone $overlapping)->where('teacher_id', $teacherId)->exists()) {
+        if ($teacherId !== null && (clone $overlapping)->where('teacher_id', $teacherId)->exists()) {
             $messages[] = 'Guru sudah punya jadwal lain yang beririsan pada hari dan jam ini.';
         }
 

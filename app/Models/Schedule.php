@@ -21,6 +21,8 @@ class Schedule extends Model
         'teacher_id',
         'class_id',
         'subject_id',
+        'type',
+        'activity_name',
         'day_of_week',
         'start_time',
         'end_time',
@@ -38,6 +40,16 @@ class Schedule extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeLessons(Builder $query): Builder
+    {
+        return $query->where('type', 'lesson');
+    }
+
+    public function scopeActivities(Builder $query): Builder
+    {
+        return $query->where('type', 'activity');
     }
 
     public function teacher(): BelongsTo

@@ -137,6 +137,35 @@ class ClassReportServiceTest extends TestCase
         $this->assertSame(0, ClassReport::count());
     }
 
+    public function test_school_activity_cannot_receive_class_report(): void
+    {
+        $piket = $this->user(UserRole::GuruPiket);
+
+        $activity = Schedule::factory()
+            ->activity('Upacara Bendera')
+            ->create([
+                'day_of_week' => 1,
+                'start_time' => '07:00:00',
+                'end_time' => '07:45:00',
+            ]);
+
+        try {
+            $this->service()->create(
+                $piket,
+                $activity,
+                ClassReportStatus::KelasKosong,
+                'Keterangan cukup',
+                $this->at('07:20:00'),
+            );
+
+            $this->fail('Jadwal kegiatan sekolah seharusnya ditolak.');
+        } catch (ValidationException $e) {
+            $this->assertArrayHasKey('schedule', $e->errors());
+        }
+
+        $this->assertSame(0, ClassReport::count());
+    }
+
     public function test_fr10_follow_up_update_is_logged_with_before_and_after(): void
     {
         $piket = $this->user(UserRole::GuruPiket);

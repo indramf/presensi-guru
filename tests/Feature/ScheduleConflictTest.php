@@ -65,6 +65,34 @@ class ScheduleConflictTest extends TestCase
         $this->assertNotEmpty(app(ScheduleConflictChecker::class)->check(1, 1, 1, '08:00', '07:00'));
     }
 
+    public function test_school_activity_conflicts_with_lesson_in_same_class(): void
+    {
+        $lesson = $this->existing();
+
+        $activity = Schedule::factory()
+            ->activity('Upacara Bendera')
+            ->create([
+                'class_id' => $lesson->class_id,
+                'day_of_week' => 1,
+                'start_time' => '07:30:00',
+                'end_time' => '08:15:00',
+            ]);
+
+        $conflicts = app(ScheduleConflictChecker::class)->check(
+            $activity->teacher_id,
+            $activity->class_id,
+            $activity->day_of_week,
+            $activity->start_time,
+            $activity->end_time,
+        );
+
+        $this->assertNotEmpty($conflicts);
+        $this->assertContains(
+            'Kelas sudah punya jadwal lain yang beririsan pada hari dan jam ini.',
+            $conflicts,
+        );
+    }
+
     public function test_inactive_schedules_are_ignored(): void
     {
         $s = $this->existing();

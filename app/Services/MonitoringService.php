@@ -29,6 +29,7 @@ class MonitoringService
 
         $schedules = Schedule::query()
             ->active()
+            ->lessons()
             ->where('day_of_week', $date->dayOfWeekIso)
             ->with(['teacher', 'schoolClass', 'subject'])
             ->orderBy('start_time')
