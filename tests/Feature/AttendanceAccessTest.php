@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
@@ -17,7 +18,7 @@ class AttendanceAccessTest extends TestCase
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $this->seed();
+        $this->seed(DatabaseSeeder::class);
     }
 
     public function test_guru_is_forbidden_from_attendance_list(): void
