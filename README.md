@@ -29,7 +29,7 @@ Buka http://127.0.0.1:8000/admin.
 |---|---|---|
 | Administrator | admin@presensiguru.local | password |
 | Guru piket | piket1@presensiguru.local | password |
-| Guru | rs001@presensiguru.local sampai rs0025@presensiguru.local | password |
+| Guru | rs001@presensiguru.local sampai rs025@presensiguru.local | password |
 
 ## Perintah penting
 | Perintah | Fungsi |
