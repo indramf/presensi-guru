@@ -30,8 +30,10 @@ class UatPrepare extends Command
         $now = now();
 
         // Sesi dibuat dari 65 menit lalu sampai 60 menit ke depan; hindari pergantian hari.
-        if ($now->copy()->subMinutes(65)->toDateString() !== $now->toDateString()
-            || $now->copy()->addMinutes(60)->toDateString() !== $now->toDateString()) {
+        if (
+            $now->copy()->subMinutes(65)->toDateString() !== $now->toDateString()
+            || $now->copy()->addMinutes(60)->toDateString() !== $now->toDateString()
+        ) {
             $this->error('Terlalu dekat dengan pergantian hari. Jalankan lagi pada jam lain.');
 
             return self::FAILURE;
@@ -59,6 +61,8 @@ class UatPrepare extends Command
             $start = $now->copy()->addMinutes($startOffset);
 
             $schedule = Schedule::create([
+                'type' => 'lesson',
+                'activity_name' => null,
                 'teacher_id' => $teacher->id,
                 'class_id' => $class->id,
                 'subject_id' => $subject->id,

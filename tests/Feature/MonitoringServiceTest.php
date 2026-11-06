@@ -98,6 +98,24 @@ class MonitoringServiceTest extends TestCase
         $this->assertCount(1, $this->rows('07:30:00'));
     }
 
+    public function test_school_activities_are_excluded_from_monitoring(): void
+    {
+        $this->mondaySchedule();
+
+        Schedule::factory()
+            ->activity('Upacara Bendera')
+            ->create([
+                'day_of_week' => 1,
+                'start_time' => '07:45:00',
+                'end_time' => '08:30:00',
+            ]);
+
+        $rows = $this->rows('09:00:00');
+
+        $this->assertCount(1, $rows);
+        $this->assertTrue($rows->every(fn ($row) => $row->schedule->type === 'lesson'));
+    }
+
     public function test_latest_class_report_is_attached(): void
     {
         $schedule = $this->mondaySchedule();

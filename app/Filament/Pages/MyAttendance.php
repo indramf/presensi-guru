@@ -38,6 +38,7 @@ class MyAttendance extends Page
         $today = now('Asia/Jakarta');
 
         return Schedule::active()
+            ->lessons()
             ->where('teacher_id', $user->teacher->id)
             ->where('day_of_week', $today->dayOfWeekIso)
             ->orderBy('start_time')

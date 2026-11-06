@@ -34,6 +34,12 @@ class ClassReportService
             $this->deny($reporter, 'Schedule', $schedule->id, 'class_report_create_forbidden');
         }
 
+        if ($schedule->type !== 'lesson') {
+            throw ValidationException::withMessages([
+                'schedule' => 'Laporan kelas hanya dapat dibuat untuk jadwal pelajaran.',
+            ]);
+        }
+
         if (! $schedule->is_active || $at->dayOfWeekIso !== $schedule->day_of_week) {
             throw ValidationException::withMessages([
                 'schedule' => 'Laporan hanya dapat dibuat untuk jadwal aktif hari ini.',

@@ -206,6 +206,28 @@ class AttendanceServiceTest extends TestCase
         $this->service()->record($user, $schedule, $this->at('07:05:00'));
     }
 
+    public function test_school_activity_cannot_receive_teacher_attendance(): void
+    {
+        $user = $this->userWithRole(UserRole::Guru);
+
+        $activity = Schedule::factory()
+            ->activity('Upacara Bendera')
+            ->create([
+                'day_of_week' => 1,
+                'start_time' => '07:00:00',
+                'end_time' => '07:45:00',
+            ]);
+
+        try {
+            $this->service()->record($user, $activity, $this->at('07:05:00'));
+            $this->fail('Jadwal kegiatan sekolah seharusnya ditolak.');
+        } catch (AttendanceRejectedException $e) {
+            $this->assertSame(AttendanceRejection::InactiveSchedule, $e->reason);
+        }
+
+        $this->assertSame(0, Attendance::count());
+    }
+
     public function test_nfr04_attendance_is_not_saved_when_audit_logging_fails(): void
     {
         [$user, $schedule] = $this->guruWithSchedule();

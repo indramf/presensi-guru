@@ -29,9 +29,16 @@ class AttendanceService
         $at ??= now();
         $schedule->loadMissing('teacher');
 
+        // Jadwal kegiatan sekolah tidak menerima presensi guru.
+        if ($schedule->type !== 'lesson') {
+            $this->reject($user, $schedule, $at, AttendanceRejection::InactiveSchedule);
+        }
+
         // Penolakan dicatat SEBELUM/di luar transaksi simpan, supaya log tidak ikut ter-rollback.
-        if (! Gate::forUser($user)->allows('create', Attendance::class)
-            || $schedule->teacher?->user_id !== $user->id) {
+        if (
+            ! Gate::forUser($user)->allows('create', Attendance::class)
+            || $schedule->teacher?->user_id !== $user->id
+        ) {
             $this->reject($user, $schedule, $at, AttendanceRejection::NotYourSchedule);
         }
 
@@ -162,7 +169,7 @@ class AttendanceService
         }
 
         $at ??= now();
-        [$opens, , $end] = $this->window($schedule, $at);
+        [$opens,, $end] = $this->window($schedule, $at);
 
         return match (true) {
             $at->lt($opens) => SessionState::NotOpen,
