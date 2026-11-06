@@ -19,8 +19,8 @@ class TodayScenarioSeeder extends Seeder
             return;
         }
 
-        $admin = User::where('email', 'admin@presensi.test')->firstOrFail();
-        $piket = User::where('email', 'piket@presensi.test')->firstOrFail();
+        $admin = User::where('email', config('initial_accounts.admin_email'))->firstOrFail();
+        $piket = User::where('email', 'piket1@presensiguru.local')->firstOrFail();
         $now = now();
         $today = $now->toDateString();
 
@@ -39,8 +39,12 @@ class TodayScenarioSeeder extends Seeder
                     ['schedule_id' => $schedule->id, 'attendance_date' => $today],
                     [
                         'teacher_id' => $schedule->teacher_id,
-                        'status' => [0 => AttendanceStatus::Hadir, 1 => AttendanceStatus::Terlambat,
-                            2 => AttendanceStatus::Izin, 4 => AttendanceStatus::TidakHadir][$pattern],
+                        'status' => [
+                            0 => AttendanceStatus::Hadir,
+                            1 => AttendanceStatus::Terlambat,
+                            2 => AttendanceStatus::Izin,
+                            4 => AttendanceStatus::TidakHadir,
+                        ][$pattern],
                         'recorded_by' => $admin->id,
                         'recorded_at' => $now,
                     ],
