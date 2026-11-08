@@ -92,7 +92,9 @@ class AttendancesTable
                     ->form(AttendanceForm::statusChange())
                     ->action(function (array $data, Attendance $record) {
                         try {
-                            $newStatus = AttendanceStatus::from($data['status']);
+                            $newStatus = $data['status'] instanceof AttendanceStatus
+                                ? $data['status']
+                                : AttendanceStatus::from($data['status']);
                             app(AttendanceService::class)->changeStatus(Auth::user(), $record, $newStatus, $data['reason']);
                             Notification::make()->success()->title('Status berhasil diubah')->send();
                         } catch (ValidationException $e) {
