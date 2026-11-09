@@ -24,6 +24,7 @@
                 $get($row, ['status_label', 'label'], '')
             );
             return match (true) {
+                str_contains($s, 'menunggu') || str_contains($s, 'waiting') => 'menunggu',
                 str_contains($s, 'belum') || str_contains($s, 'unconfirmed') || trim($s) === '' => 'unconfirmed',
                 str_contains($s, 'tidak') || str_contains($s, 'absent') => 'absent',
                 str_contains($s, 'terlambat') || str_contains($s, 'late') => 'late',
@@ -33,7 +34,7 @@
             };
         };
 
-        $counted = ['unconfirmed' => 0, 'present' => 0, 'late' => 0, 'permission' => 0, 'absent' => 0];
+        $counted = ['menunggu' => 0, 'unconfirmed' => 0, 'present' => 0, 'late' => 0, 'permission' => 0, 'absent' => 0];
         foreach ($rows as $row) {
             $counted[$classify($row)]++;
         }
@@ -50,6 +51,7 @@
 
         $stats = [
             'needs_action' => (int) data_get($summary, 'needs_action', 0),
+            'menunggu' => $pick(['menunggu'], 'menunggu'),
             'unconfirmed' => $pick(['unconfirmed', 'not_confirmed', 'belum_terkonfirmasi'], 'unconfirmed'),
             'present' => $pick(['present', 'hadir'], 'present'),
             'late' => $pick(['late', 'terlambat'], 'late'),
@@ -58,6 +60,7 @@
         ];
 
         $meta = [
+            'menunggu' => ['label' => 'Menunggu', 'color' => '#94a3b8'],
             'unconfirmed' => ['label' => 'Belum terkonfirmasi', 'color' => '#64748b'],
             'present' => ['label' => 'Hadir', 'color' => '#15803d'],
             'late' => ['label' => 'Terlambat', 'color' => '#b45309'],
@@ -239,6 +242,7 @@
 
                 @php
                     $icons = [
+                        'menunggu' => 'M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
                         'unconfirmed' => 'M9.88 9.88a3 3 0 114.24 0c-.6.6-1.12 1.1-1.12 2.12M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
                         'present' => 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
                         'late' => 'M12 6v6h4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
@@ -303,6 +307,7 @@
 
                 <div class="mon-item {{ $needsAction ? 'mon-item-actionable' : '' }}"
                      style="--accent:{{ $color }}; --accent-text:{{ match ($cat) {
+                        'menunggu' => '#64748b',
                         'unconfirmed' => '#475569',
                         'present' => '#166534',
                         'late' => '#92400e',
