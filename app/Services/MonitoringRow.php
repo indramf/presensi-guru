@@ -15,5 +15,6 @@ final class MonitoringRow
         public readonly ?ClassReport $report,
         public readonly MonitoringStatus $status,
         public readonly bool $needsAction,
+        public readonly bool $isOngoing,
     ) {}
 }

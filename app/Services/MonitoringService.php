@@ -57,7 +57,27 @@ class MonitoringService
             $report = $reports->get($schedule->id);
             $status = $this->statusFor($schedule, $attendance, $date, $now);
 
-            return new MonitoringRow($schedule, $attendance, $report, $status, $this->needsAction($status, $report));
+            $start = Carbon::parse(
+                $date->toDateString().' '.$schedule->start_time,
+                $date->getTimezone()
+            );
+
+            $end = Carbon::parse(
+                $date->toDateString().' '.$schedule->end_time,
+                $date->getTimezone()
+            );
+
+            $isOngoing = $now->greaterThanOrEqualTo($start)
+                && $now->lessThan($end);
+
+            return new MonitoringRow(
+                $schedule,
+                $attendance,
+                $report,
+                $status,
+                $this->needsAction($status, $report),
+                $isOngoing,
+            );
         })->values();
     }
 
