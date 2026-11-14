@@ -71,7 +71,7 @@ class AccessMatrixTest extends TestCase
             }
         }
 
-        $this->assertSame([], $failures, "Selisih akses:\n" . implode("\n", $failures));
+        $this->assertSame([], $failures, "Selisih akses:\n".implode("\n", $failures));
     }
 
     public function test_t07_guests_are_redirected_to_login_on_every_page(): void
