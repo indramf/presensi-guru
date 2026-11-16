@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
         ] as $key => $password) {
             if (! is_string($password) || strlen($password) < 8) {
                 throw new RuntimeException(
-                    "{$key} wajib diisi dan minimal 12 karakter."
+                    "{$key} wajib diisi dan minimal 8 karakter."
                 );
             }
         }

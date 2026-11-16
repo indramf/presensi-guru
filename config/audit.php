@@ -11,5 +11,10 @@ return [
     'hmac_key' => env('AUDIT_HMAC_KEY'),
 
     // Checkpoint di luar database.
-    'checkpoint_path' => storage_path('app/audit/checkpoint.json'),
+    // 'checkpoint_path' => storage_path('app/audit/checkpoint.json'),
+
+    'checkpoint_path' => env(
+        'AUDIT_CHECKPOINT_PATH',
+        storage_path('app/audit/checkpoint.json')
+    ),
 ];
