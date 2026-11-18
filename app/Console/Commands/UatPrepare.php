@@ -50,7 +50,7 @@ class UatPrepare extends Command
         Schedule::query()->update(['is_active' => false]);
 
         $subject = Subject::firstOrFail();
-        $piket = User::where('email', 'piket@presensi.test')->firstOrFail();
+        $piket = User::where('email', 'piket1@presensiguru.local')->firstOrFail();
 
         $make = function (int $n, int $startOffset, int $endOffset, string $teacherCode) use ($now, $subject): array {
             $class = SchoolClass::updateOrCreate(
@@ -76,26 +76,26 @@ class UatPrepare extends Command
         };
 
         // Sesi 1: sudah berlalu, guru mengisi tepat waktu (Hadir).
-        [$s1, $start1, $t1] = $make(1, -60, -15, 'G001');
+        [$s1, $start1, $t1] = $make(1, -60, -15, 'RS001');
         $attendance->record($t1->user, $s1, $start1->copy()->addMinutes(3));
 
         // Sesi 2: sudah berlalu, guru mengisi terlambat (Terlambat).
-        [$s2, $start2, $t2] = $make(2, -45, -2, 'G002');
+        [$s2, $start2, $t2] = $make(2, -45, -2, 'RS002');
         $attendance->record($t2->user, $s2, $start2->copy()->addMinutes(12));
 
         // Sesi 3: baru dimulai, belum diisi (Menunggu). Guru 3 dapat mengisinya saat UAT.
-        $make(3, -3, 42, 'G003');
+        $make(3, -3, 42, 'RS003');
 
         // Sesi 4: berjalan, tanpa presensi dan tanpa laporan (Belum terkonfirmasi, perlu tindakan).
-        $make(4, -25, 20, 'G004');
+        $make(4, -25, 20, 'RS004');
 
         // Sesi 5: berjalan, tanpa presensi tetapi sudah dilaporkan guru piket (tindak lanjut Proses).
-        [$s5] = $make(5, -20, 25, 'G005');
+        [$s5] = $make(5, -20, 25, 'RS005');
         $report = $reports->create($piket, $s5, ClassReportStatus::KelasDiberiTugas, 'Siswa diberi tugas oleh guru piket', $now);
         $reports->updateFollowUp($piket, $report, FollowUpStatus::Proses, 'Guru pengganti sedang dihubungi');
 
         // Sesi 6: akan dimulai 10 menit lagi (Menunggu). Jendela presensi guru 1 sudah terbuka.
-        $make(6, 10, 55, 'G001');
+        $make(6, 10, 55, 'RS001');
 
         $this->info('Data UAT siap untuk '.$now->format('d M Y H:i').':');
         $this->table(['Sesi', 'Kelas', 'Guru', 'Keadaan'], [
@@ -106,7 +106,7 @@ class UatPrepare extends Command
             [5, 'UAT 5', 'guru5', 'Belum terkonfirmasi, sudah dilaporkan (Proses)'],
             [6, 'UAT 6', 'guru1', 'Akan dimulai, dapat diisi'],
         ]);
-        $this->line('Akun: admin@presensi.test, piket@presensi.test, guru1 sampai guru5 @presensi.test (kata sandi: password).');
+        $this->line('Akun: admin@presensiguru.local, piket@presensiguru.local, guru1 sampai guru5 @presensiguru.local (kata sandi: password).');
 
         return self::SUCCESS;
     }
