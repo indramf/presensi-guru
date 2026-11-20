@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Schedules;
 use App\Filament\Resources\Schedules\Pages\CreateSchedule;
 use App\Filament\Resources\Schedules\Pages\EditSchedule;
 use App\Filament\Resources\Schedules\Pages\ListSchedules;
+use App\Filament\Resources\Schedules\Pages\ViewSchedule;
 use App\Filament\Resources\Schedules\Schemas\ScheduleForm;
 use App\Filament\Resources\Schedules\Tables\SchedulesTable;
 use App\Models\Schedule;
@@ -18,15 +19,15 @@ class ScheduleResource extends Resource
 {
     protected static ?string $model = Schedule::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDateRange;
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 7;
 
     protected static ?string $modelLabel = 'Jadwal';
 
-    protected static ?string $pluralModelLabel = 'Jadwal';
+    protected static ?string $pluralModelLabel = 'Data Jadwal';
 
-    protected static ?string $navigationLabel = 'Jadwal';
+    protected static ?string $navigationLabel = 'Data Jadwal';
 
     public static function form(Schema $schema): Schema
     {
@@ -43,6 +44,7 @@ class ScheduleResource extends Resource
         return [
             'index' => ListSchedules::route('/'),
             'create' => CreateSchedule::route('/create'),
+            'view' => ViewSchedule::route('/{record}'),
             'edit' => EditSchedule::route('/{record}/edit'),
         ];
     }

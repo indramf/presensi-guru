@@ -39,6 +39,11 @@ class SubjectPolicy
         return $user->hasPermissionTo('subjects.update');
     }
 
+    public function deactivate(User $user, Subject $subject): bool
+    {
+        return $user->hasPermissionTo('subjects.deactivate');
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

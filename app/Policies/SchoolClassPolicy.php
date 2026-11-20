@@ -39,6 +39,11 @@ class SchoolClassPolicy
         return $user->hasPermissionTo('classes.update');
     }
 
+    public function deactivate(User $user, SchoolClass $schoolClass): bool
+    {
+        return $user->hasPermissionTo('classes.deactivate');
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

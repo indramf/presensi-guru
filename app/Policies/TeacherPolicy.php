@@ -39,6 +39,11 @@ class TeacherPolicy
         return $user->hasPermissionTo('teachers.update');
     }
 
+    public function deactivate(User $user, Teacher $teacher): bool
+    {
+        return $user->hasPermissionTo('teachers.deactivate');
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

@@ -10,11 +10,21 @@ $timeText = ($start && $end) ? substr($start, 0, 5) . ' - ' . substr($end, 0, 5)
 }
 $class = $get($row, ['class_name', 'class.name', 'schoolClass.class_name', 'schedule.schoolClass.class_name', 'schedule.class.name', 'kelas']);
 $subject = $get($row, ['subject_name', 'subject.name', 'schedule.subject.subject_name', 'schedule.subject.name', 'mapel']);
-$teacher = $get($row, ['teacher_name', 'teacher.name', 'schedule.teacher.full_name', 'schedule.teacher.name', 'guru']);
+$teacher = $get($row, [
+'teacher_name',
+'schedule.teacher.full_name',
+'schedule.teacher.user.name',
+'teacher.name',
+'guru',
+]);
 $statusLabel = $meta[$cat]['label'];
 $scheduleId = $get($row, ['schedule_id', 'schedule.id', 'id'], null);
 $reportId = $get($row, ['report_id', 'report.id'], null);
-$followUp = $get($row, ['follow_up_status', 'report.follow_up_status'], null);
+$followUp = data_get($row, 'report.follow_up_status');
+
+$followUp = $followUp instanceof \BackedEnum
+? $followUp->value
+: $followUp;
 $accentText = match ($cat) {
 'menunggu' => '#64748b',
 'unconfirmed' => '#475569',
@@ -24,8 +34,8 @@ $accentText = match ($cat) {
 'absent' => '#991b1b',
 };
 $itemStyle = [
-    '--accent: '.$color,
-    '--accent-text: '.$accentText,
+'--accent: '.$color,
+'--accent-text: '.$accentText,
 ];
 $searchText = strtolower("$class $subject $teacher $timeText $statusLabel");
 @endphp
@@ -84,7 +94,7 @@ $searchText = strtolower("$class $subject $teacher $timeText $statusLabel");
                 )
                 {{ ($this->reportAction)(['schedule_id' => $scheduleId]) }}
                 @endif
-                @if ($reportId && $followUp !== 'Selesai')
+                @if ($reportId && $followUp !== 'selesai')
                 {{ ($this->updateFollowUpAction)(['report_id' => $reportId, 'current_status' => $followUp]) }}
                 @endif
             </div>

@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TeacherResource extends Resource
 {
@@ -22,7 +23,7 @@ class TeacherResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $recordTitleAttribute = 'full_name';
 
@@ -31,6 +32,12 @@ class TeacherResource extends Resource
     protected static ?string $pluralModelLabel = 'Guru';
 
     protected static ?string $navigationLabel = 'Guru';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with('schedules.subject');
+    }
 
     public static function form(Schema $schema): Schema
     {

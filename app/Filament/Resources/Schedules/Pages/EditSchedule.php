@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Schedules\Pages;
 use App\Filament\Resources\Concerns\ConfirmsDeactivation;
 use App\Filament\Resources\Schedules\ScheduleResource;
 use App\Services\ScheduleConflictChecker;
-use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Validation\ValidationException;
 
@@ -18,7 +17,7 @@ class EditSchedule extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            ViewAction::make(),
+            // ViewAction::make(),
         ];
     }
 
@@ -47,5 +46,10 @@ class EditSchedule extends EditRecord
         }
 
         return $data;
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return ScheduleResource::getUrl('index');
     }
 }

@@ -72,4 +72,9 @@ class EditUser extends EditRecord
             after: ['roles' => [$role]],
         );
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return UserResource::getUrl('index');
+    }
 }

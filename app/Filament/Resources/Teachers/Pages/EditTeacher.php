@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Teachers\Pages;
 
 use App\Filament\Resources\Concerns\ConfirmsDeactivation;
 use App\Filament\Resources\Teachers\TeacherResource;
-use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditTeacher extends EditRecord
@@ -16,7 +15,12 @@ class EditTeacher extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            ViewAction::make(),
+            // ViewAction::make(),
         ];
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return TeacherResource::getUrl('index');
     }
 }

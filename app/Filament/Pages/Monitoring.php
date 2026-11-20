@@ -29,14 +29,14 @@ class Monitoring extends Page
 
     protected static ?string $slug = 'monitoring';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     // Filament v4: $view TIDAK static
     protected string $view = 'filament.pages.monitoring';
 
     public function getTitle(): string|Htmlable
     {
-        return 'Monitoring Kelas — '.now('Asia/Jakarta')->locale('id')->translatedFormat('l, d M Y');
+        return 'Monitoring Kelas';
     }
 
     public static function canAccess(): bool
