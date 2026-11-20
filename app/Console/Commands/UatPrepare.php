@@ -50,13 +50,23 @@ class UatPrepare extends Command
         Schedule::query()->update(['is_active' => false]);
 
         $subject = Subject::firstOrFail();
-        $piket = User::where('email', 'piket1@presensiguru.local')->firstOrFail();
 
-        $make = function (int $n, int $startOffset, int $endOffset, string $teacherCode) use ($now, $subject): array {
+        $isTesting = app()->environment('testing');
+
+        $piketEmail = $isTesting
+            ? 'piket@presensi.test'
+            : 'piket1@presensiguru.local';
+
+        $teacherCodePrefix = $isTesting ? 'G' : 'RS';
+
+        $piket = User::where('email', $piketEmail)->firstOrFail();
+
+        $make = function (int $n, int $startOffset, int $endOffset, ?int $teacherNumber = null) use ($now, $subject, $teacherCodePrefix): array {
             $class = SchoolClass::updateOrCreate(
                 ['class_name' => "UAT {$n}", 'academic_year' => '2026/2027'],
                 ['is_active' => true],
             );
+            $teacherCode = sprintf($teacherCodePrefix.'%03d', $teacherNumber ?? $n);
             $teacher = Teacher::where('teacher_code', $teacherCode)->firstOrFail();
             $start = $now->copy()->addMinutes($startOffset);
 
@@ -76,26 +86,26 @@ class UatPrepare extends Command
         };
 
         // Sesi 1: sudah berlalu, guru mengisi tepat waktu (Hadir).
-        [$s1, $start1, $t1] = $make(1, -60, -15, 'RS001');
+        [$s1, $start1, $t1] = $make(1, -60, -15);
         $attendance->record($t1->user, $s1, $start1->copy()->addMinutes(3));
 
         // Sesi 2: sudah berlalu, guru mengisi terlambat (Terlambat).
-        [$s2, $start2, $t2] = $make(2, -45, -2, 'RS002');
+        [$s2, $start2, $t2] = $make(2, -45, -2);
         $attendance->record($t2->user, $s2, $start2->copy()->addMinutes(12));
 
         // Sesi 3: baru dimulai, belum diisi (Menunggu). Guru 3 dapat mengisinya saat UAT.
-        $make(3, -3, 42, 'RS003');
+        $make(3, -3, 42);
 
         // Sesi 4: berjalan, tanpa presensi dan tanpa laporan (Belum terkonfirmasi, perlu tindakan).
-        $make(4, -25, 20, 'RS004');
+        $make(4, -25, 20);
 
         // Sesi 5: berjalan, tanpa presensi tetapi sudah dilaporkan guru piket (tindak lanjut Proses).
-        [$s5] = $make(5, -20, 25, 'RS005');
+        [$s5] = $make(5, -20, 25);
         $report = $reports->create($piket, $s5, ClassReportStatus::KelasDiberiTugas, 'Siswa diberi tugas oleh guru piket', $now);
         $reports->updateFollowUp($piket, $report, FollowUpStatus::Proses, 'Guru pengganti sedang dihubungi');
 
         // Sesi 6: akan dimulai 10 menit lagi (Menunggu). Jendela presensi guru 1 sudah terbuka.
-        $make(6, 10, 55, 'RS001');
+        $make(6, 10, 55, 1);
 
         $this->info('Data UAT siap untuk '.$now->format('d M Y H:i').':');
         $this->table(['Sesi', 'Kelas', 'Guru', 'Keadaan'], [
