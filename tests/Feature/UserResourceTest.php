@@ -94,7 +94,7 @@ class UserResourceTest extends TestCase
         $this->assertFalse($guru->fresh()->hasRole('guru'));
     }
 
-    public function test_no_filament_resource_exposes_delete_actions(): void
+    public function test_only_attendances_table_exposes_delete_action(): void
     {
         $matches = [];
 
@@ -103,10 +103,20 @@ class UserResourceTest extends TestCase
                 $file->isFile() && str_ends_with($file->getFilename(), '.php')
                 && preg_match('/DeleteAction|DeleteBulkAction|ForceDelete|Restore/', file_get_contents($file->getPathname()))
             ) {
-                $matches[] = $file->getPathname();
+                $matches[] = str_replace('\\', '/', $file->getPathname());
             }
         }
 
-        $this->assertSame([], $matches, 'Aksi hapus ditemukan di: '.implode(', ', $matches));
+        $allowed = str_replace(
+            '\\',
+            '/',
+            app_path('Filament/Resources/Attendances/Tables/AttendancesTable.php')
+        );
+
+        $this->assertSame(
+            [$allowed],
+            $matches,
+            'Aksi hapus hanya boleh ditemukan di AttendancesTable.'
+        );
     }
 }

@@ -26,4 +26,9 @@ class CreateUser extends CreateRecord
             after: ['roles' => [$role]],
         );
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return UserResource::getUrl('index');
+    }
 }

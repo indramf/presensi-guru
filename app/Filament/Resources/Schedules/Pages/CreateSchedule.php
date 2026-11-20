@@ -36,4 +36,9 @@ class CreateSchedule extends CreateRecord
 
         return $data;
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return ScheduleResource::getUrl('index');
+    }
 }

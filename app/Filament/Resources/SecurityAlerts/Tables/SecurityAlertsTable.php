@@ -9,6 +9,7 @@ use App\Models\SecurityAlert;
 use App\Models\User;
 use App\Services\SecurityAlertService;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -27,21 +28,22 @@ class SecurityAlertsTable
     public static function configure(Table $table): Table
     {
         return $table
+
             ->columns([
                 TextColumn::make('detected_at')
                     ->label('Waktu Terdeteksi')
                     ->dateTime('d M Y H:i', 'Asia/Jakarta')
+                    ->icon('heroicon-o-clock')
                     ->sortable(),
-                TextColumn::make('rule_code')
-                    ->label('Kode Aturan')
-                    ->formatStateUsing(fn (AnomalyRule $state): string => $state->value)
-                    ->searchable(),
+
                 TextColumn::make('description')
-                    ->label('Deskripsi')
-                    ->limit(70)
+                    ->label('Deskripsi Anomali')
+                    ->limit(80)
+                    ->tooltip(fn (SecurityAlert $record): string => $record->description)
                     ->wrap(),
+
                 TextColumn::make('severity')
-                    ->label('Tingkat')
+                    ->label('Tingkat Keparahan')
                     ->badge()
                     ->formatStateUsing(fn (AlertSeverity $state): string => $state->label())
                     ->icon(fn (AlertSeverity $state): string => match ($state) {
@@ -49,9 +51,11 @@ class SecurityAlertsTable
                         AlertSeverity::Sedang => 'heroicon-o-exclamation-triangle',
                         AlertSeverity::Tinggi => 'heroicon-o-exclamation-circle',
                     })
-                    ->color(fn (AlertSeverity $state): string => $state->color()),
+                    ->color(fn (AlertSeverity $state): string => $state->color())
+                    ->sortable(),
+
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label('Status Penanganan')
                     ->badge()
                     ->formatStateUsing(fn (AlertStatus $state): string => $state->label())
                     ->icon(fn (AlertStatus $state): string => match ($state) {
@@ -63,12 +67,16 @@ class SecurityAlertsTable
                         AlertStatus::Baru => 'gray',
                         AlertStatus::Ditinjau => 'warning',
                         AlertStatus::Ditutup => 'success',
-                    }),
+                    })
+                    ->sortable(),
+
                 TextColumn::make('relatedUser.name')
                     ->label('Pengguna Terkait')
                     ->placeholder('Tidak diketahui')
+                    ->icon('heroicon-o-user')
                     ->searchable(),
             ])
+
             ->filters([
                 SelectFilter::make('status')
                     ->label('Status')
@@ -77,9 +85,6 @@ class SecurityAlertsTable
                 SelectFilter::make('severity')
                     ->label('Tingkat')
                     ->options(self::severityOptions()),
-                SelectFilter::make('rule_code')
-                    ->label('Kode Aturan')
-                    ->options(self::ruleOptions()),
                 Filter::make('detected_at')
                     ->label('Rentang Tanggal')
                     ->schema([
@@ -96,68 +101,79 @@ class SecurityAlertsTable
                             fn (Builder $query, string $date): Builder => $query->whereDate('detected_at', '<=', $date),
                         )),
             ])
+
             ->recordActions([
-                ViewAction::make(),
-                Action::make('review')
-                    ->label('Tinjau')
-                    ->color('primary')
-                    ->requiresConfirmation()
-                    ->modalHeading('Tinjau peringatan anomali')
-                    ->modalDescription('Pastikan status tujuan dan catatan sudah sesuai sebelum menyimpan.')
-                    ->schema(fn (SecurityAlert $record): array => [
-                        Select::make('status')
-                            ->label('Status Tujuan')
-                            ->options(collect($record->status->allowedTransitions())
-                                ->mapWithKeys(fn (AlertStatus $status): array => [$status->value => $status->label()])
-                                ->all())
-                            ->required(),
-                        Textarea::make('note')
-                            ->label('Catatan')
-                            ->rows(3),
-                    ])
-                    ->visible(fn (SecurityAlert $record): bool => auth()->user()?->can('update', $record)
-                        && $record->status->allowedTransitions() !== [])
-                    ->action(function (SecurityAlert $record, array $data): void {
-                        try {
-                            $actor = auth()->user();
+                ActionGroup::make([
+                    ViewAction::make()
+                        ->label('Lihat Detail'),
 
-                            if (! $actor instanceof User) {
-                                throw new AuthorizationException('Anda tidak berwenang meninjau peringatan.');
+                    Action::make('review')
+                        ->label('Tinjau')
+                        ->icon('heroicon-o-document-magnifying-glass')
+                        // ->color('primary')
+                        ->requiresConfirmation()
+                        ->modalHeading('Tinjau peringatan anomali')
+                        ->modalDescription('Pastikan status tujuan dan catatan sudah sesuai sebelum menyimpan.')
+                        ->schema(fn (SecurityAlert $record): array => [
+                            Select::make('status')
+                                ->label('Status Tujuan')
+                                ->options(
+                                    collect($record->status->allowedTransitions())
+                                        ->mapWithKeys(fn (AlertStatus $status): array => [
+                                            $status->value => $status->label(),
+                                        ])
+                                        ->all()
+                                )
+                                ->required(),
+
+                            Textarea::make('note')
+                                ->label('Catatan')
+                                ->rows(3),
+                        ])
+                        ->visible(fn (SecurityAlert $record): bool => auth()->user()?->can('update', $record)
+                            && $record->status->allowedTransitions() !== [])
+                        ->action(function (SecurityAlert $record, array $data): void {
+                            try {
+                                $actor = auth()->user();
+
+                                if (! $actor instanceof User) {
+                                    throw new AuthorizationException('Anda tidak berwenang meninjau peringatan.');
+                                }
+
+                                $status = AlertStatus::tryFrom($data['status'] ?? '');
+
+                                if ($status === null) {
+                                    throw ValidationException::withMessages([
+                                        'status' => 'Status tujuan tidak valid.',
+                                    ]);
+                                }
+
+                                app(SecurityAlertService::class)->changeStatus(
+                                    actor: $actor,
+                                    alert: $record,
+                                    new: $status,
+                                    note: $data['note'] ?? null,
+                                );
+
+                                Notification::make()
+                                    ->success()
+                                    ->title('Peringatan berhasil ditinjau')
+                                    ->send();
+                            } catch (ValidationException $e) {
+                                Notification::make()
+                                    ->warning()
+                                    ->title('Gagal meninjau peringatan')
+                                    ->body(collect($e->errors())->flatten()->implode(' '))
+                                    ->send();
+                            } catch (AuthorizationException $e) {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Tidak diizinkan')
+                                    ->body($e->getMessage())
+                                    ->send();
                             }
-
-                            $status = AlertStatus::tryFrom($data['status'] ?? '');
-
-                            if ($status === null) {
-                                throw ValidationException::withMessages([
-                                    'status' => 'Status tujuan tidak valid.',
-                                ]);
-                            }
-
-                            app(SecurityAlertService::class)->changeStatus(
-                                actor: $actor,
-                                alert: $record,
-                                new: $status,
-                                note: $data['note'] ?? null,
-                            );
-
-                            Notification::make()
-                                ->success()
-                                ->title('Peringatan berhasil ditinjau')
-                                ->send();
-                        } catch (ValidationException $e) {
-                            Notification::make()
-                                ->warning()
-                                ->title('Gagal meninjau peringatan')
-                                ->body(collect($e->errors())->flatten()->implode(' '))
-                                ->send();
-                        } catch (AuthorizationException $e) {
-                            Notification::make()
-                                ->danger()
-                                ->title('Tidak diizinkan')
-                                ->body($e->getMessage())
-                                ->send();
-                        }
-                    }),
+                        }),
+                ]),
             ])
             ->defaultSort('detected_at', 'desc')
             ->emptyStateHeading('Belum ada peringatan anomali')

@@ -72,4 +72,9 @@ class UserPolicy
         // Periksa permission
         return $user->can('users.deactivate');
     }
+
+    public function resetPassword(User $user, User $target): bool
+    {
+        return $user->can('users.reset_password');
+    }
 }

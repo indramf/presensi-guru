@@ -39,6 +39,11 @@ class SchedulePolicy
         return $user->hasPermissionTo('schedules.update');
     }
 
+    public function deactivate(User $user, Schedule $schedule): bool
+    {
+        return $user->hasPermissionTo('schedules.deactivate');
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

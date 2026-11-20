@@ -3,8 +3,9 @@
 namespace App\Filament\Resources\Attendances\Schemas;
 
 use App\Enums\AttendanceStatus;
-use Filament\Infolists\Components\IconEntry;
+use App\Models\Attendance;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class AttendanceInfolist
@@ -13,58 +14,78 @@ class AttendanceInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('attendance_date')
-                    ->label('Tanggal')
-                    ->date('d M Y'),
-                TextEntry::make('schedule.start_time')
-                    ->label('Jam')
-                    ->time('H:i'),
-                TextEntry::make('teacher.user.name')
-                    ->label('Guru'),
-                TextEntry::make('schedule.schoolClass.class_name')
-                    ->label('Kelas'),
-                TextEntry::make('schedule.subject.name')
-                    ->label('Mata Pelajaran'),
-                TextEntry::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->formatStateUsing(fn (AttendanceStatus $state): string => match ($state) {
-                        AttendanceStatus::Hadir => 'Hadir',
-                        AttendanceStatus::Terlambat => 'Terlambat',
-                        AttendanceStatus::Izin => 'Izin',
-                        AttendanceStatus::TidakHadir => 'Tidak hadir',
-                    })
-                    ->icon(fn (AttendanceStatus $state): string => match ($state) {
-                        AttendanceStatus::Hadir => 'heroicon-o-check-circle',
-                        AttendanceStatus::Terlambat => 'heroicon-o-clock',
-                        AttendanceStatus::Izin => 'heroicon-o-document-text',
-                        AttendanceStatus::TidakHadir => 'heroicon-o-x-circle',
-                    })
-                    ->color(fn (AttendanceStatus $state): string => match ($state) {
-                        AttendanceStatus::Hadir => 'success',
-                        AttendanceStatus::Terlambat => 'warning',
-                        AttendanceStatus::Izin => 'info',
-                        AttendanceStatus::TidakHadir => 'danger',
-                    }),
-                TextEntry::make('recorder.name')
-                    ->label('Dicatat Oleh')
-                    ->placeholder('Tidak diketahui'),
-                TextEntry::make('recorded_at')
-                    ->label('Waktu Dicatat')
-                    ->dateTime('d M Y H:i', 'Asia/Jakarta'),
-                IconEntry::make('verified_at')
-                    ->label('Verifikasi')
-                    ->boolean(),
-                TextEntry::make('verifier.name')
-                    ->label('Diverifikasi Oleh')
-                    ->placeholder('Belum terverifikasi'),
-                TextEntry::make('verified_at')
-                    ->label('Waktu Verifikasi')
-                    ->dateTime('d M Y H:i', 'Asia/Jakarta')
-                    ->placeholder('Belum terverifikasi'),
-                TextEntry::make('updated_at')
-                    ->label('Terakhir Diperbarui')
-                    ->dateTime('d M Y H:i'),
+                Section::make('Informasi Presensi')
+                    ->schema([
+                        TextEntry::make('attendance_date')
+                            ->label('Tanggal')
+                            ->date('d M Y'),
+                        TextEntry::make('schedule.start_time')
+                            ->label('Jam')
+                            ->time('H:i'),
+                        TextEntry::make('teacher.user.name')
+                            ->label('Guru'),
+                        TextEntry::make('schedule.schoolClass.class_name')
+                            ->label('Kelas'),
+                        TextEntry::make('schedule.subject.subject_name')
+                            ->label('Mata Pelajaran'),
+                        TextEntry::make('status')
+                            ->label('Status')
+                            ->badge()
+                            ->formatStateUsing(fn (AttendanceStatus $state): string => match ($state) {
+                                AttendanceStatus::Hadir => 'Hadir',
+                                AttendanceStatus::Terlambat => 'Terlambat',
+                                AttendanceStatus::Izin => 'Izin',
+                                AttendanceStatus::TidakHadir => 'Tidak hadir',
+                            })
+                            ->icon(fn (AttendanceStatus $state): string => match ($state) {
+                                AttendanceStatus::Hadir => 'heroicon-o-check-circle',
+                                AttendanceStatus::Terlambat => 'heroicon-o-clock',
+                                AttendanceStatus::Izin => 'heroicon-o-document-text',
+                                AttendanceStatus::TidakHadir => 'heroicon-o-x-circle',
+                            })
+                            ->color(fn (AttendanceStatus $state): string => match ($state) {
+                                AttendanceStatus::Hadir => 'success',
+                                AttendanceStatus::Terlambat => 'warning',
+                                AttendanceStatus::Izin => 'info',
+                                AttendanceStatus::TidakHadir => 'danger',
+                            }),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+
+                Section::make('Informasi Pencatatan dan Verifikasi')
+                    ->schema([
+                        TextEntry::make('recorder.name')
+                            ->label('Dicatat Oleh')
+                            ->placeholder('Tidak diketahui'),
+                        TextEntry::make('recorded_at')
+                            ->label('Waktu Dicatat')
+                            ->dateTime('d M Y H:i', 'Asia/Jakarta'),
+                        TextEntry::make('verified_at')
+                            ->label('Verifikasi')
+                            ->state(fn (Attendance $record): string => filled($record->verified_at)
+                                ? 'Terverifikasi'
+                                : 'Belum diverifikasi')
+                            ->badge()
+                            ->color(fn (Attendance $record): string => filled($record->verified_at)
+                                ? 'success'
+                                : 'gray')
+                            ->icon(fn (Attendance $record): string => filled($record->verified_at)
+                                ? 'heroicon-o-check-circle'
+                                : 'heroicon-o-x-circle'),
+                        TextEntry::make('verifier.name')
+                            ->label('Diverifikasi Oleh')
+                            ->placeholder('Belum terverifikasi'),
+                        TextEntry::make('verified_at')
+                            ->label('Waktu Verifikasi')
+                            ->dateTime('d M Y H:i', 'Asia/Jakarta')
+                            ->placeholder('Belum terverifikasi'),
+                        TextEntry::make('updated_at')
+                            ->label('Terakhir Diperbarui')
+                            ->dateTime('d M Y H:i'),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
             ]);
     }
 }

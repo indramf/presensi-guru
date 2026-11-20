@@ -31,7 +31,7 @@ class MonitoringService
             ->active()
             ->lessons()
             ->where('day_of_week', $date->dayOfWeekIso)
-            ->with(['teacher', 'schoolClass', 'subject'])
+            ->with(['teacher.user', 'schoolClass', 'subject'])
             ->orderBy('start_time')
             ->get();
 

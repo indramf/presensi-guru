@@ -35,16 +35,16 @@ class AccessMatrixTest extends TestCase
     {
         return [
             'admin@presensi.test' => [
-                200 => [...$this->master(), ...$this->security(), '/admin/monitoring', '/admin/attendances'],
+                200 => [...$this->master(), ...$this->security(), '/admin/monitoring', '/admin/attendances', '/admin/schedule-board'],
                 403 => ['/admin/my-attendance'],
             ],
             'piket@presensi.test' => [
-                200 => ['/admin/monitoring', '/admin/attendances'],
+                200 => ['/admin/monitoring', '/admin/attendances', '/admin/schedule-board'],
                 403 => [...$this->master(), ...$this->security(), '/admin/my-attendance'],
             ],
             'guru1@presensi.test' => [
                 200 => ['/admin/my-attendance'],
-                403 => [...$this->master(), ...$this->security(), '/admin/monitoring', '/admin/attendances'],
+                403 => [...$this->master(), ...$this->security(), '/admin/monitoring', '/admin/attendances', '/admin/schedule-board'],
             ],
         ];
     }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\AuditLogs\Tables;
 use App\Enums\AuditEventType;
 use App\Enums\AuditResult;
 use App\Models\AuditLog;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
@@ -20,24 +21,50 @@ class AuditLogsTable
         return $table
             ->columns([
                 TextColumn::make('occurred_at')
-                    ->label('Waktu')
-                    ->dateTime('d M Y H:i', 'Asia/Jakarta')
+                    ->label('Waktu Aktivitas')
+                    ->dateTime('d M Y H:i:s', 'Asia/Jakarta')
+                    ->icon('heroicon-o-clock')
                     ->sortable(),
+
                 TextColumn::make('actor.name')
                     ->label('Pelaku')
                     ->placeholder('Sistem')
+                    ->icon('heroicon-o-user')
                     ->searchable(),
+
                 TextColumn::make('event_type')
                     ->label('Jenis Peristiwa')
-                    ->formatStateUsing(fn (AuditEventType $state): string => $state->value)
+                    ->badge()
+                    ->formatStateUsing(fn (AuditEventType $state): string => str_replace('.', ' / ', $state->value))
+                    ->color(fn (AuditEventType $state): string => match ($state) {
+                        AuditEventType::LoginFailed,
+                        AuditEventType::AccessDenied,
+                        AuditEventType::AttendanceRejected => 'danger',
+
+                        AuditEventType::DataCreated,
+                        AuditEventType::AttendanceRecorded,
+                        AuditEventType::ClassReportCreated,
+                        AuditEventType::AttendanceVerified => 'success',
+
+                        AuditEventType::DataDeactivated,
+                        AuditEventType::AttendanceStatusChanged,
+                        AuditEventType::ClassReportFollowUpChanged => 'warning',
+
+                        default => 'gray',
+                    })
                     ->searchable(),
+
                 TextColumn::make('target_type')
                     ->label('Objek')
                     ->state(fn (AuditLog $record): string => $record->target_type
-                        ? $record->target_type.($record->target_id ? ' #'.$record->target_id : '')
-                        : '-'),
+                        ? class_basename($record->target_type).($record->target_id ? ' #'.$record->target_id : '')
+                        : 'Tidak ada objek')
+                    ->placeholder('Tidak ada objek')
+                    ->icon('heroicon-o-rectangle-stack')
+                    ->searchable(),
+
                 TextColumn::make('action_result')
-                    ->label('Hasil')
+                    ->label('Hasil Aktivitas')
                     ->badge()
                     ->formatStateUsing(fn (AuditResult $state): string => match ($state) {
                         AuditResult::Success => 'Berhasil',
@@ -53,10 +80,8 @@ class AuditLogsTable
                         AuditResult::Success => 'success',
                         AuditResult::Denied => 'warning',
                         AuditResult::Failed => 'danger',
-                    }),
-                TextColumn::make('entry_hash')
-                    ->label('Hash')
-                    ->formatStateUsing(fn (string $state): string => substr($state, 0, 8)),
+                    })
+                    ->sortable(),
             ])
             ->filters([
                 Filter::make('occurred_at')
@@ -74,11 +99,15 @@ class AuditLogsTable
                             $data['until'] ?? null,
                             fn (Builder $query, string $date): Builder => $query->whereDate('occurred_at', '<=', $date),
                         )),
+
                 SelectFilter::make('event_type')
                     ->label('Jenis Peristiwa')
                     ->options(collect(AuditEventType::cases())
-                        ->mapWithKeys(fn (AuditEventType $event): array => [$event->value => $event->value])
+                        ->mapWithKeys(fn (AuditEventType $event): array => [
+                            $event->value => $event->value,
+                        ])
                         ->all()),
+
                 SelectFilter::make('action_result')
                     ->label('Hasil')
                     ->options([
@@ -86,13 +115,21 @@ class AuditLogsTable
                         AuditResult::Denied->value => 'Ditolak',
                         AuditResult::Failed->value => 'Gagal',
                     ]),
+
                 SelectFilter::make('actor_user_id')
                     ->label('Pelaku')
                     ->relationship('actor', 'name'),
             ])
             ->recordActions([
-                ViewAction::make(),
+                ActionGroup::make([
+                    ViewAction::make()
+                        ->label('Lihat Detail')
+                        ->icon('heroicon-o-eye'),
+                ])
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->color('gray'),
             ])
+            ->columnToggleFormColumns(0)
             ->defaultSort('occurred_at', 'desc')
             ->emptyStateHeading('Belum ada riwayat audit log')
             ->emptyStateDescription('Aktivitas sistem yang tercatat akan tampil di sini.')
