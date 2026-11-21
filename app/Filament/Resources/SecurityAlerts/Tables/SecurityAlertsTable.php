@@ -39,7 +39,6 @@ class SecurityAlertsTable
                 TextColumn::make('description')
                     ->label('Deskripsi Anomali')
                     ->limit(80)
-                    ->tooltip(fn (SecurityAlert $record): string => $record->description)
                     ->wrap(),
 
                 TextColumn::make('severity')
@@ -175,6 +174,7 @@ class SecurityAlertsTable
                         }),
                 ]),
             ])
+            ->recordUrl(null)
             ->defaultSort('detected_at', 'desc')
             ->emptyStateHeading('Belum ada peringatan anomali')
             ->emptyStateDescription('Peringatan yang terdeteksi akan tampil di sini.')
