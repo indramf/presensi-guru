@@ -42,7 +42,11 @@
                         {{ $entry['subject'] }}
                     </div>
 
-                    @if ($entry['teacher'])
+                    @if (($showClass ?? false) && ! empty($entry['class']))
+                    <div class="tt-teacher">
+                        {{ $entry['class'] }}
+                    </div>
+                    @elseif (! ($showClass ?? false) && ! empty($entry['teacher']))
                     <div class="tt-teacher">
                         {{ $entry['teacher'] }}
                     </div>

@@ -129,6 +129,7 @@ class AuditLogsTable
                     ->icon('heroicon-m-ellipsis-vertical')
                     ->color('gray'),
             ])
+            ->recordUrl(null)
             ->columnToggleFormColumns(0)
             ->defaultSort('occurred_at', 'desc')
             ->emptyStateHeading('Belum ada riwayat audit log')

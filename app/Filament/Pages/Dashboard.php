@@ -16,14 +16,17 @@ class Dashboard extends FilamentDashboard
     {
         $user = auth()->user();
 
-        $target = match (true) {
-            $user?->can('dashboard.view') => Monitoring::getUrl(),
-            $user?->can('attendance.record') => MyAttendance::getUrl(),
-            default => null,
-        };
+        if ($user?->can('attendance.record')) {
+            $this->redirect(MyAttendance::getUrl());
 
-        if ($target !== null) {
-            $this->redirect($target);
+            return;
+        }
+
+        if (
+            $user?->hasRole(\App\Enums\UserRole::Administrator->value)
+            || $user?->hasRole(\App\Enums\UserRole::GuruPiket->value)
+        ) {
+            $this->redirect(ScheduleBoard::getUrl());
         }
     }
 }
