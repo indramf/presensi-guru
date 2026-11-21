@@ -35,8 +35,8 @@ class TimetableServiceTest extends TestCase
         return Schedule::factory()->create([
             'class_id' => $class->id,
             'day_of_week' => $day,
-            'start_time' => $start.':00',
-            'end_time' => $end.':00',
+            'start_time' => $start . ':00',
+            'end_time' => $end . ':00',
         ] + $extra);
     }
 
@@ -51,7 +51,11 @@ class TimetableServiceTest extends TestCase
         $result = app(TimetableService::class)->forClass($class);
 
         // Kolom hari [6, 7, 1]: Senin = indeks 2. Baris jam: 08:30 = indeks 2.
-        $this->assertSame([['subject' => 'Matematika Uji', 'teacher' => 'Budi Uji']], $result['rows'][2]['cells'][2]);
+        $this->assertSame([[
+            'subject' => 'Matematika Uji',
+            'teacher' => 'Budi Uji',
+            'class' => $class->class_name,
+        ]], $result['rows'][2]['cells'][2]);
         $this->assertSame([], $result['rows'][2]['cells'][0]);
         $this->assertSame(['Sabtu', 'Minggu', 'Senin'], array_column($result['days'], 'name'));
     }
@@ -143,7 +147,7 @@ class TimetableServiceTest extends TestCase
 
         $result = app(TimetableService::class)->forAllClasses();
 
-        $this->assertSame(['A Kelas', 'B Kelas'], array_map(fn ($blk) => $blk['class']->class_name, $result['blocks']));
+        $this->assertSame(['A Kelas', 'B Kelas'], array_map(fn($blk) => $blk['class']->class_name, $result['blocks']));
         $this->assertSame('Fisika Uji', $result['blocks'][0]['rows'][0]['cells'][0][0]['subject']);   // Sabtu = kolom 0
         $this->assertSame([], $result['blocks'][1]['rows'][0]['cells'][0]);
         $this->assertCount(1, $result['unmatched']);
