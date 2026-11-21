@@ -15,10 +15,10 @@ class TimetableService
     /** @return list<array{start: string, end: string, label: string, type: string}> */
     public function periods(): array
     {
-        return array_map(fn (array $p) => [
+        return array_map(fn(array $p) => [
             'start' => $p['start'],
             'end' => $p['end'],
-            'label' => $p['start'].' - '.$p['end'],
+            'label' => $p['start'] . ' - ' . $p['end'],
             'type' => $p['type'],
         ], config('school.periods', []));
     }
@@ -27,7 +27,7 @@ class TimetableService
     public function days(): array
     {
         return array_map(
-            fn (int $iso) => ['iso' => $iso, 'name' => self::DAY_NAMES[$iso] ?? (string) $iso],
+            fn(int $iso) => ['iso' => $iso, 'name' => self::DAY_NAMES[$iso] ?? (string) $iso],
             config('school.days', [1, 2, 3, 4, 5, 6]),
         );
     }
@@ -56,13 +56,42 @@ class TimetableService
 
         $monitoringRows = $now !== null && in_array($now->dayOfWeekIso, $isoDays, true)
             ? app(MonitoringService::class)->sessionsFor($now, $now)
-                ->keyBy(fn (MonitoringRow $row) => $row->schedule->id)
+            ->keyBy(fn(MonitoringRow $row) => $row->schedule->id)
             : collect();
 
-        $grid = $this->build($schedules, $isoDays, fn (Schedule $s) => $s->day_of_week, $now, $monitoringRows);
+        $grid = $this->build($schedules, $isoDays, fn(Schedule $s) => $s->day_of_week, $now, $monitoringRows);
 
         return $grid + ['days' => $days, 'todayIndex' => $this->todayIndex($isoDays, $now)];
     }
+
+    /** Jadwal mingguan satu guru: baris = jam, kolom = hari. */
+    public function forTeacher(\App\Models\Teacher $teacher, ?CarbonInterface $now = null): array
+    {
+        $days = $this->days();
+        $isoDays = array_column($days, 'iso');
+
+        $schedules = Schedule::query()
+            ->active()
+            ->lessons()
+            ->where('teacher_id', $teacher->id)
+            ->whereIn('day_of_week', $isoDays)
+            ->with(['subject', 'schoolClass'])
+            ->get();
+
+        $grid = $this->build(
+            $schedules,
+            $isoDays,
+            fn(Schedule $s) => $s->day_of_week,
+            $now,
+            collect(),
+        );
+
+        return $grid + [
+            'days' => $days,
+            'todayIndex' => $this->todayIndex($isoDays, $now),
+        ];
+    }
+
 
     /** Jadwal satu hari: baris = jam, kolom = kelas aktif. */
     public function forDay(int $day, ?CarbonInterface $now = null): array
@@ -78,10 +107,10 @@ class TimetableService
 
         $monitoringRows = $now !== null && $day === $now->dayOfWeekIso
             ? app(MonitoringService::class)->sessionsFor($now, $now)
-                ->keyBy(fn (MonitoringRow $row) => $row->schedule->id)
+            ->keyBy(fn(MonitoringRow $row) => $row->schedule->id)
             : collect();
 
-        $grid = $this->build($schedules, $classes->pluck('id')->all(), fn (Schedule $s) => $s->class_id, $now, $monitoringRows);
+        $grid = $this->build($schedules, $classes->pluck('id')->all(), fn(Schedule $s) => $s->class_id, $now, $monitoringRows);
 
         return $grid + ['columns' => $classes];
     }
@@ -147,7 +176,7 @@ class TimetableService
                 $unmatched[] = [
                     'class' => $className,
                     'day' => $this->dayName($s->day_of_week),
-                    'time' => str_replace('-', ' - ', $start.'-'.$end),
+                    'time' => str_replace('-', ' - ', $start . '-' . $end),
                     'teacher' => $teacherName,
                     'subject' => $subjectName,
                 ];
@@ -157,13 +186,14 @@ class TimetableService
 
             // Satu jadwal dapat mengisi beberapa periode.
             foreach ($matchedPeriods as $period) {
-                $key = $period['start'].'-'.$period['end'];
+                $key = $period['start'] . '-' . $period['end'];
 
                 $monitoring = $monitoringRows->get($s->id);
 
                 $entry = [
                     'subject' => $subjectName,
                     'teacher' => $teacherName,
+                    'class' => $className,
                 ];
 
                 if ($monitoring !== null) {
@@ -179,7 +209,7 @@ class TimetableService
         $rows = [];
 
         foreach ($this->periods() as $period) {
-            $key = $period['start'].'-'.$period['end'];
+            $key = $period['start'] . '-' . $period['end'];
             $time = $now?->format('H:i');
 
             $rows[] = [
@@ -188,7 +218,7 @@ class TimetableService
                 'current' => $time !== null && $time >= $period['start'] && $time < $period['end'],
                 'cells' => $period['type'] === 'break'
                     ? []
-                    : array_map(fn ($col) => $cells[$key][$col] ?? [], $columnKeys),
+                    : array_map(fn($col) => $cells[$key][$col] ?? [], $columnKeys),
             ];
         }
 
@@ -211,14 +241,14 @@ class TimetableService
 
         $monitoringRows = $now !== null && in_array($now->dayOfWeekIso, $isoDays, true)
             ? app(MonitoringService::class)->sessionsFor($now, $now)
-                ->keyBy(fn (MonitoringRow $row) => $row->schedule->id)
+            ->keyBy(fn(MonitoringRow $row) => $row->schedule->id)
             : collect();
 
         $blocks = [];
         $unmatched = [];
 
         foreach ($classes as $class) {
-            $grid = $this->build($byClass->get($class->id, collect()), $isoDays, fn (Schedule $s) => $s->day_of_week, $now, $monitoringRows);
+            $grid = $this->build($byClass->get($class->id, collect()), $isoDays, fn(Schedule $s) => $s->day_of_week, $now, $monitoringRows);
 
             $unmatched = array_merge($unmatched, $grid['unmatched']);
             $blocks[] = ['class' => $class, 'rows' => $grid['rows']];

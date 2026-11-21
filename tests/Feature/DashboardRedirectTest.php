@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Enums\UserRole;
 use App\Filament\Pages\Dashboard;
-use App\Filament\Pages\Monitoring;
 use App\Filament\Pages\MyAttendance;
+use App\Filament\Pages\ScheduleBoard;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -36,7 +36,7 @@ class DashboardRedirectTest extends TestCase
             ->assertRedirect(MyAttendance::getUrl());
     }
 
-    public function test_guru_piket_and_administrator_are_redirected_to_monitoring(): void
+    public function test_guru_piket_and_administrator_are_redirected_to_schedule_board(): void
     {
         foreach ([UserRole::GuruPiket, UserRole::Administrator] as $role) {
             $user = User::factory()->create();
@@ -45,7 +45,7 @@ class DashboardRedirectTest extends TestCase
             $this->actingAs($user);
 
             Livewire::test(Dashboard::class)
-                ->assertRedirect(Monitoring::getUrl());
+                ->assertRedirect(ScheduleBoard::getUrl());
         }
     }
 

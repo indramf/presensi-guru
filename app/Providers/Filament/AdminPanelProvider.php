@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->font('Inter')
             ->brandName('Presensi Guru SMK Fadris')
+            ->favicon(asset('logo-smk-fadris.webp'))
             ->globalSearch(false)
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
