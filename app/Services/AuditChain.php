@@ -27,10 +27,10 @@ class AuditChain
     {
         return $this->hash([
             'actor_user_id' => $log->actor_user_id,
-            'event_type' => $log->event_type->value,
+            'event_type' => $log->getRawOriginal('event_type'),
             'target_type' => $log->target_type,
             'target_id' => $log->target_id,
-            'action_result' => $log->action_result->value,
+            'action_result' => $log->getRawOriginal('action_result'),
             'before_data' => $log->before_data,
             'after_data' => $log->after_data,
             'reason' => $log->reason,
