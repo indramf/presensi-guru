@@ -99,6 +99,42 @@ class AuditLoggerTest extends TestCase
         $this->assertSame(3, $result['checked']);
     }
 
+    public function test_t11_invalid_event_type_is_reported_without_crashing(): void
+    {
+        $entry = $this->makeEntries(1)[0];
+
+        DB::table('audit_logs')
+            ->where('id', $entry->id)
+            ->update(['event_type' => 'invalid.event']);
+
+        $result = app(AuditIntegrityChecker::class)->verify();
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame(1, $result['checked']);
+        $this->assertStringContainsString(
+            "Entri #{$entry->id}: isi entri tidak sesuai dengan hash-nya.",
+            implode(' | ', $result['problems']),
+        );
+    }
+
+    public function test_t11_invalid_action_result_is_reported_without_crashing(): void
+    {
+        $entry = $this->makeEntries(1)[0];
+
+        DB::table('audit_logs')
+            ->where('id', $entry->id)
+            ->update(['action_result' => 'invalid.result']);
+
+        $result = app(AuditIntegrityChecker::class)->verify();
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame(1, $result['checked']);
+        $this->assertStringContainsString(
+            "Entri #{$entry->id}: isi entri tidak sesuai dengan hash-nya.",
+            implode(' | ', $result['problems']),
+        );
+    }
+
     public function test_t11_modified_entry_is_detected(): void
     {
         [, $second] = $this->makeEntries(3);
